@@ -114,26 +114,25 @@ export const SiteHeader = () => {
               gap: '6px',
             }}
           >
-            <Search size={16} /> Browse Jobs
+            <Search size={16} /> Browse Vacancies
           </Link>
 
-          <Link
-            to={isAuthenticated ? "/recruiter/jobs/new" : "/recruiter/login"}
-            style={{
-              fontWeight: 600,
-              fontSize: '0.9375rem',
-              color: isActive('/recruiter/jobs/new') ? 'var(--color-brand-ink)' : 'var(--color-text-secondary)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <PlusCircle size={16} /> Post a Job
-          </Link>
-
-          {/* Recruiter Authentication Section */}
+          {/* HR options ONLY visible when authenticated as Recruiter */}
           {isAuthenticated ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+              <Link
+                to="/recruiter/jobs/new"
+                style={{
+                  fontWeight: 600,
+                  fontSize: '0.9375rem',
+                  color: isActive('/recruiter/jobs/new') ? 'var(--color-brand-ink)' : 'var(--color-text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <PlusCircle size={16} /> Post a Job
+              </Link>
               <Link to="/recruiter/dashboard">
                 <Button variant="secondary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Building2 size={16} />
@@ -145,18 +144,11 @@ export const SiteHeader = () => {
               </Button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <Link to="/recruiter/login">
-                <Button variant="ghost" size="sm">
-                  HR Sign In
-                </Button>
-              </Link>
-              <Link to="/recruiter/signup">
-                <Button variant="primary" size="sm">
-                  Post Jobs / Register
-                </Button>
-              </Link>
-            </div>
+            <Link to="/jobs" style={{ textDecoration: 'none' }}>
+              <Button variant="primary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Search size={16} /> Find Jobs
+              </Button>
+            </Link>
           )}
         </nav>
 
@@ -206,51 +198,36 @@ export const SiteHeader = () => {
             <Search size={18} /> Browse All Jobs
           </Link>
 
-          <Link
-            to={isAuthenticated ? "/recruiter/jobs/new" : "/recruiter/login"}
-            onClick={closeMobile}
-            style={{
-              padding: 'var(--space-3)',
-              fontWeight: 600,
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-3)',
-            }}
-          >
-            <PlusCircle size={18} /> Post a Vacancy (HR)
-          </Link>
-
-          <div style={{ borderTop: '1px solid var(--color-border-default)', paddingTop: 'var(--space-4)' }}>
-            {isAuthenticated ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                  Logged in as: <strong>{user?.company_name || user?.username}</strong>
-                </div>
-                <Link to="/recruiter/dashboard" onClick={closeMobile}>
-                  <Button variant="primary" style={{ width: '100%' }}>
-                    Go to HR Dashboard
-                  </Button>
-                </Link>
-                <Button variant="danger" onClick={handleLogout} style={{ width: '100%' }}>
-                  Log Out
+          {/* HR tools in mobile menu: only shown if logged in */}
+          {isAuthenticated && (
+            <div style={{ borderTop: '1px solid var(--color-border-default)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                Employer: <strong>{user?.company_name || user?.username}</strong>
+              </div>
+              <Link
+                to="/recruiter/jobs/new"
+                onClick={closeMobile}
+                style={{
+                  padding: 'var(--space-2) 0',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  color: 'var(--color-brand-ink)',
+                }}
+              >
+                <PlusCircle size={18} /> Post a Vacancy
+              </Link>
+              <Link to="/recruiter/dashboard" onClick={closeMobile} style={{ textDecoration: 'none' }}>
+                <Button variant="primary" style={{ width: '100%' }}>
+                  Go to HR Dashboard
                 </Button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                <Link to="/recruiter/login" onClick={closeMobile}>
-                  <Button variant="secondary" style={{ width: '100%' }}>
-                    Recruiter Login
-                  </Button>
-                </Link>
-                <Link to="/recruiter/signup" onClick={closeMobile}>
-                  <Button variant="primary" style={{ width: '100%' }}>
-                    Employer Registration
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </div>
+              </Link>
+              <Button variant="danger" onClick={handleLogout} style={{ width: '100%' }}>
+                Log Out
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

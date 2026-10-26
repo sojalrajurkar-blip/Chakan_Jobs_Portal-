@@ -62,7 +62,7 @@ export const SiteFooter = () => {
           {/* Col 3: Quick Links */}
           <div>
             <h4 style={{ color: 'var(--color-text-inverse)', marginBottom: 'var(--space-4)', fontSize: '1rem' }}>
-              Quick Navigation
+              Candidate Jobs
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', fontSize: '0.875rem' }}>
               <li>
@@ -71,18 +71,18 @@ export const SiteFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/recruiter/signup" style={{ color: '#BBBBCF' }}>
-                  Post a Job Opening (HR)
-                </Link>
-              </li>
-              <li>
-                <Link to="/recruiter/login" style={{ color: '#BBBBCF' }}>
-                  Recruiter Sign In
-                </Link>
-              </li>
-              <li>
                 <Link to="/jobs?job_type=INDUSTRY" style={{ color: '#BBBBCF' }}>
                   Factory & Machine Jobs
+                </Link>
+              </li>
+              <li>
+                <Link to="/jobs?shift=DAY" style={{ color: '#BBBBCF' }}>
+                  Day Shift Vacancies
+                </Link>
+              </li>
+              <li>
+                <Link to="/jobs?education=ITI" style={{ color: '#BBBBCF' }}>
+                  ITI & Diploma Roles
                 </Link>
               </li>
             </ul>
@@ -94,7 +94,7 @@ export const SiteFooter = () => {
               Portal Support
             </h4>
             <p style={{ color: '#BBBBCF', fontSize: '0.875rem', marginBottom: 'var(--space-3)' }}>
-              Are you an employer in Chakan needing urgent plant staffing?
+              Industrial recruitment platform serving Chakan, Nanekarwadi, Kuruli & Talegaon MIDC.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', fontSize: '0.875rem', color: '#BBBBCF' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -123,8 +123,15 @@ export const SiteFooter = () => {
             color: '#8E90A0',
           }}
         >
-          <div>
-            © {new Date().getFullYear()} Chakan Job Portal. All rights reserved. Strictly no candidate application fees.
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            <div>
+              © {new Date().getFullYear()} Chakan Job Portal. All rights reserved. 100% Free candidate job applications.
+            </div>
+            <div>
+              <Link to="/recruiter/login" style={{ color: '#7E8090', textDecoration: 'none', fontSize: '0.75rem' }}>
+                Employer Portal
+              </Link>
+            </div>
           </div>
         </div>
       </div>
