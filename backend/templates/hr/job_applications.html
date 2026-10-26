@@ -1,0 +1,168 @@
+{% extends 'job/base.html' %}
+
+{% block title %}chakanJob.com - Job Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-3 mb-5 ">
+  <div class=" border-none">
+    <div class="card-body">
+      <h1 class="card-title mb-4 fw-bold text-center">Job Applications</h1>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead class="table-light">
+            <tr>
+              <th>Job Title</th>
+              <th>Applicants</th>
+              <th>Action</th>
+              <th>JD Copy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for post in posts reversed %}
+            <tr>
+              <td> 
+                <a href="{% url 'post_detail' post.pk %}" class="text-body text-decoration-none"
+     style="cursor: pointer;">
+                {{ post.job_title }}
+                </a>
+              </td>
+              <td>
+                <a href="{% url 'job_applicants' post.pk %}" class="btn btn-sm btn-dark">
+                  Applicants ({{ post.applications.count }})
+                </a>
+            </td>
+
+
+              <!-- Action Button Start -->
+                <td>
+  
+              <!-- See Applicants button (icon only) -->
+              <a href="{% url 'post_detail' post.pk %}" 
+                class="btn btn-sm mb-1"
+                title="See Applicants"
+                style="font-size: 1.2rem; font-weight: bold; color: #0d6efd; border: 1px solid #0d6efd;">
+                <i class="bi bi-eye"></i>
+              </a>
+
+                <!-- Delete button (icon only) -->
+                <form action="{% url 'delete_post' post.pk %}" method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" 
+                          class="btn btn-sm btn-outline-danger" 
+                          title="Delete Post"
+                          style="font-size: 1.2rem; font-weight: bold; color: #e91d0a; border: 1px solid #d14836;""
+                          onclick="return confirm('Are you sure you want to delete this post?');">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+
+              <!-- Action Button End -->
+
+
+
+
+
+
+               <!-- JD buttons Start Here -->
+              <td>
+              
+                <button class="btn btn-outline-info btn-sm" onclick="copyToClipboard('textToCopy{{ post.id }}')">
+                  <i class="bi bi-clipboard"></i>Hin-Eng
+                </button>
+                <textarea id="textToCopy{{ post.id }}" style="display:none;" style="display:none; white-space:pre-wrap;">
+📢 *{{ post.company_name }}*, *{{ post.area }}* – *मैं* 𝗝𝗼𝗯 𝗢𝗽𝗲𝗻𝗶𝗻𝗴
+
+*चाकण, रांजणगाव, पुणे, हिंजवाड़ी, भोसरी की वैकेंसी एक मिनट में आपके मोबाइल पर पाएँ और तुरंत HR कॉल को करें* | *www.chakanjob.com पर*  ||
+
+🔧 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻: *{{ post.job_title }}*
+🎓 𝗘𝗱𝘂𝗰𝗮𝘁𝗶𝗼𝗻: *{{ post.min_education }}, ({{ post.course_name }})*
+💼 𝗘𝘅𝗽𝗲𝗿𝗶𝗲𝗻𝗰𝗲: *{{ post.experience }}* ✅
+💰 𝗦𝗮𝗹𝗮𝗿𝘆: ₹ *{{ post.min_salary }}* – ₹ *{{ post.max_salary }}* / 𝗠𝗼𝗻𝘁𝗵
+🧑‍🤝‍🧑 𝗚𝗲𝗻𝗱𝗲𝗿: *{{ post.gender }}* 
+🏢 𝗙𝗮𝗰𝗶𝗹𝗶𝘁𝗶𝗲𝘀: *{{ post.facilities }}* 🍴
+
+━━━━━━━━━━━━━━━
+🚀 𝗔𝗽𝗽𝗹𝘆 𝗡𝗼𝘄 𝗼𝗿 𝗖𝗮𝗹𝗹 𝗨𝘀  
+👉 www.chakanjob.com{% url 'post_detail' post.pk %}
+
+━━━━━━━━━━━━━━━
+🔎 𝗦𝗲𝗮𝗿𝗰𝗵 𝗕𝗲𝘀𝘁 𝗝𝗼𝗯 𝗶𝗻 𝗣𝘂𝗻𝗲  
+👉 www.chakanjob.com
+
+🔎 *Join Whatsapp Channel* :
+https://www.whatsapp.com/channel/0029VbBUdgM9RZAWKxY8iM3r  
+
+                      ━━━━━━━━━━━━━━━
+⚡ *Producation || Quality || Security || HR || Accountant || House Keeping जॉब कोई भी हो, वैकेंसी मिल जाएगी*।
+                </textarea>
+
+
+  <!-- Marathi Copy Button -->
+  <button class="btn btn-outline-success btn-sm"
+          onclick="copyToClipboard('marathiText{{ post.id }}')">
+    <i class="bi bi-clipboard"></i> मराठी
+  </button>
+  <textarea id="marathiText{{ post.id }}"
+            style="display: none; white-space: pre-wrap;">
+📢 *{{ post.company_name }}*, *{{ post.area }}* – *मध्ये* 𝗝𝗼𝗯 𝗢𝗽𝗲𝗻𝗶𝗻𝗴
+
+*चाकण, रांजणगाव, पुणे, हिंजवाड़ी, भोसरी येथे एक मिनिटात नोकरी — तुमच्या मोबाईलवर आणि लगेच HR ला कॉल करा* | *www.chakanjob.com वर* ||
+
+🔧 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻: *{{ post.job_title }}*
+🎓 *शिक्षण*: *{{ post.min_education }}*, *({{ post.course_name }})*
+💼 *अनुभव*: *{{ post.experience }}* ✅
+💰 *पगार*: ₹ *{{ post.min_salary }}* – ₹ *{{ post.min_salary }}* / महिना
+🧑‍🤝‍🧑 *लिंग*: *{{ post.gender }}*
+🏢 *सोयी-सुविधा*: *{{ post.facilities }}* 🍴
+
+ ━━━━━━━━━━━━━━━
+🚀 𝗔𝗽𝗽𝗹𝘆 𝗡𝗼𝘄 किंवा 𝗖𝗮𝗹𝗹 *करा*  
+👉 www.chakanjob.com{% url 'post_detail' post.pk %}
+
+━━━━━━━━━━━━━━━
+🔎 *पुण्यात सर्वोत्तम नोकरी शोधा*  
+👉 www.chakanjob.com
+
+🔎 *Join Whatsapp Channel* :  
+https://www.whatsapp.com/channel/0029VbBUdgM9RZAWKxY8iM3r  
+
+━━━━━━━━━━━━━━━
+⚡ *Producation || Quality || Security || HR || Accountant || House Keeping नोकरी असो, वैकन्सी मिळेल*। 
+*थेट Google वर chakanjob.com  Search करा*
+  </textarea>
+
+                 <!-- Marathi Button End -->
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block jsScript %}
+<script>
+function copyToClipboard(textareaId) {
+  var copyText = document.getElementById(textareaId);
+  copyText.style.display = 'block';  // Make textarea visible
+
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); // For mobile devices
+
+  navigator.clipboard.writeText(copyText.value)
+    .then(() => {
+      alert("Job details copied, share with your friends. (directly paste on whatsapp)");
+    })
+    .catch(err => {
+      console.error('Error copying text: ', err);
+      alert('Failed to copy job details.');
+    });
+
+  copyText.style.display = 'none';  // Hide textarea again
+}
+</script>
+{% endblock %}

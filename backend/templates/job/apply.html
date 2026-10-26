@@ -1,0 +1,80 @@
+{% extends 'job/base.html' %}
+
+{% block title %}HR Registration - My Amazing Site{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 bg-primary p-3 rounded">Apply</h2>
+                    {% if messages %}
+                        <div class="alert">
+                            <ul class="bg-warning p-2  list-unstyled  rounded" style="text-decoration: none;">
+                                {% for message in messages %}
+                                    <li class="{{ message.tags }} px-3">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                         <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label mt-3 fw-bold" style="font-family: Inter, sans-serif;">Full Name :</label>
+                            <input type="text" id="full_name" name="full_name" value="{{ full_name }}" class="form-control" required>
+                            <div class="invalid-feedback">Please enter your full name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Qualification" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Qualification :</label>
+                            <input type="text" id="qualification" name="qualification" value="{{ qualification }}"  class="form-control" required>
+                            <div class="invalid-feedback" >Please enter your qualification..</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="age" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Age :</label>
+                            <input type="number" id="age" name="age" value="{{ age }}"  class="form-control" required>
+                            <div class="invalid-feedback" >Please enter your age..</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mobile_number" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Mobile Number :</label>
+                            <input type="text" id="mobile_number" name="mobile_number" value="{{ mobile_number }}" class="form-control" required>
+                            <div class="invalid-feedback">Please enter your mobile number.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="Current Address" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Current Address :</label>
+                            <input type="text" id="current_address" name="current_address" value="{{ current_address }}" class="form-control" required>
+                            <div class="invalid-feedback" >Please enter your current address.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary my-3 w-100 p-2" style="font-family: Inter, sans-serif;">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bootstrap 5 form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

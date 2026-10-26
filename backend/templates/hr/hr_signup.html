@@ -1,0 +1,118 @@
+{% extends 'job/base.html' %}
+
+{% block title %}HR Registration - My Amazing Site{% endblock %}
+
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 bg-primary p-3 rounded">HR Registration</h2>
+                    {% if messages %}
+                        <div class="alert">
+                            <ul class="bg-warning p-2  list-unstyled  rounded" style="text-decoration: none;">
+                                {% for message in messages %}
+                                    <li class="{{ message.tags }} px-3">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label mt-3 fw-bold" style="font-family: Inter, sans-serif;">Full Name :</label>
+                            <input type="text" id="full_name" name="full_name" value="{{ full_name }}" class="form-control" required>
+                            <div class="invalid-feedback">Please enter your full name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Email Address :</label>
+                            <input type="email" id="email" name="email" value="{{ email }}" class="form-control" required>
+                            <div class="invalid-feedback">Please provide a valid email address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mobile_number" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Mobile Number :</label>
+                            <input type="text" id="mobile_number" name="mobile_number" value="{{ mobile_number }}" class="form-control" required>
+                            <div class="invalid-feedback">Please enter your mobile number.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Username :</label>
+                            <input type="text" id="username" name="username" value="{{ username }}" class="form-control" required>
+                            <div class="invalid-feedback">Please choose a username.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Password :</label>
+                            <input type="password" id="password" name="password1"  class="form-control" required>
+                            <div class="invalid-feedback">Please provide a password.</div>
+                        </div>
+
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Confirm Password :</label>
+                            <input type="password" id="password" name="password2"  class="form-control" required>
+                            <div class="invalid-feedback">Please provide a password.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="position" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Position</label>
+                            <select id="position" name="position" class="form-select " value="{{ position }}" required>
+                                <option value="" disabled selected style="background-color: #b3d9ff;" style="font-family: Inter, sans-serif;">Select your position</option>
+                                <option value="HR" style="background-color: #b3d9ff;" style="font-family: Inter, sans-serif;">HR</option>
+                                <option value="Contractor" style="background-color: #b3d9ff;" style="font-family: Inter, sans-serif;">Contractor</option>
+                                <option value="Vendor" style="background-color: #b3d9ff;" style="font-family: Inter, sans-serif;">Vendor</option>
+                            </select>
+                            <div class="invalid-feedback">Please select your position.</div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label for="company_name" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Company Name :</label>
+                            <input type="text" id="company_name" name="company_name" value="{{ company_name }}"  class="form-control" required>
+                            <div class="invalid-feedback" >Please enter your company name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="company_address" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Company Address :</label>
+                            <textarea id="company_address" name="company_address" value="{{ company_address }}" class="form-control" rows="3" required></textarea>
+                            <div class="invalid-feedback">Please provide your company address.</div>
+                        </div>
+
+                        <!-- <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms" style="font-family: Inter, sans-serif;">I agree to the terms and conditions</label>
+                            <div class="invalid-feedback">You must agree before submitting.</div>
+                        </div> -->
+
+                        <button type="submit" class="btn btn-primary my-3 w-100 p-2" style="font-family: Inter, sans-serif;">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bootstrap 5 form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

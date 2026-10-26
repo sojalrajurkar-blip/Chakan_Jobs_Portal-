@@ -1,0 +1,231 @@
+{% extends 'job/base.html' %}
+
+{% block title %}HR Registration - My Amazing Site{% endblock %}
+{% block styleOld %}
+<style>
+.style-none {
+    text-decoration: none;
+    cursor: pointer;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 bg-primary p-3 rounded fw-bold" style="font-family: Inter, sans-serif;">New Job Post</h2>
+                    {% if messages %}
+                        <div class="alert">
+                            <ul class="bg-warning p-2  list-unstyled  rounded" style="text-decoration: none;">
+                                {% for message in messages %}
+                                    <li class="{{ message.tags }} px-3">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <form method="post" action="{% url 'hr_post_company' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                                                <!-- Heading boxex start  -->
+
+                        <div class="container my-4" style="max-width: 900px; font-family: 'Noto Sans', sans-serif;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom" style="border-color: #CBCCCE; padding: 24px 0 32px 0;">
+
+                                <!-- Step 1 -->
+                                     <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                    <img
+                                        src="https://getlokalapp.com/_next/image?url=%2Fassets%2Fpost_job_success.webp&w=96&q=75"
+                                        alt="Candidate Requirement"
+                                        width="36"
+                                        height="36"
+                                        class="rounded-circle bg-white"
+                                        loading="lazy"
+                                        decoding="async"
+                                        style="color: transparent;"
+                                    >
+                                    <div class="text-sm fw-normal mt-2" style="color: #595959;">Job <br> Details</div>
+                                </div>
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 2 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                    <img
+                                        src="https://getlokalapp.com/_next/image?url=%2Fassets%2Fpost_job_success.webp&w=96&q=75"
+                                        alt="Candidate Requirement"
+                                        width="36"
+                                        height="36"
+                                        class="rounded-circle bg-white"
+                                        loading="lazy"
+                                        decoding="async"
+                                        style="color: transparent;"
+                                    >
+                                    <div class="text-sm fw-normal mt-2" style="color: #595959;">Candidate <br> Requirements</div>
+                                </div>
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 3 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    3
+                                </button>
+                                <div class="text-sm  mt-2" style="color: #595959;">Company <br> details</div>
+                                </div>
+                            </div>
+                            </div>
+                        <!-- Heading boxex  end -->
+                        
+                       <div class="mb-3">
+                                <label style="font-family: Inter, sans-serif; font-weight: bold; display: block; margin-bottom: 5px;">Select your company type :</label>
+
+                                <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="company_type" value="company" style="margin-right: 5px;">
+                                Company
+                                <span style="display: block; font-size: 12px; color: gray; margin-left: 23px;">
+                                    I hire for my company / store
+                                </span>
+                                </label>
+
+
+                                <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="company_type" value="consultancy" style="margin-right: 5px;">
+                                Consultancy 
+                                <span style="display: block; font-size: 12px; color: gray; margin-left: 23px;">
+                                    I hire for third party companies
+                                </span>
+                                </label>
+                                
+
+                                <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="company_type" value="manpower-firm" style="margin-right: 5px;">
+                                Manpower Firm
+                                <span style="display: block; font-size: 12px; color: gray; margin-left: 23px;">
+                                    I hire for third party companies
+                                </span>
+                                </label>
+
+                                <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="company_type" value="vendor" style="margin-right: 5px;">
+                                Vendor
+                                <span style="display: block; font-size: 12px; color: gray; margin-left: 23px;">
+                                    I hire for third party companies
+                                </span>
+                                </label>
+
+                        </div>
+
+                            <div class="mb-3">
+                                <label for="company_name" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Company Name :</label>
+                                <input type="text" id="company_name" name="company_name" value="{{ company_name }}" placeholder="Enter Company Name" class="form-control" required>
+                                <div class="invalid-feedback">Company Name....</div>
+                            </div> 
+
+                            <div class="mb-3">
+                                <label for="company_address" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Company Address:</label>
+                                <textarea id="company_address" name="company_address" class="form-control" placeholder="Enter Address" required></textarea>
+                                <div class="invalid-feedback">Please provide a company address.</div>
+                            </div>
+
+                            
+                   <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Company Size :</label>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-4">
+                                <input type="radio" class="btn-check" id="size_1_10" name="company_size" value="1-10" autocomplete="off">
+                                <label class="btn btn-outline-primary w-100" for="size_1_10">👥 1-10 Employees</label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <input type="radio" class="btn-check" id="size_11_50" name="company_size" value="11-50" autocomplete="off">
+                                <label class="btn btn-outline-success w-100" for="size_11_50">👥 11-50 Employees</label>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <input type="radio" class="btn-check" id="size_50_plus" name="company_size" value="50+" autocomplete="off">
+                                <label class="btn btn-outline-warning w-100" for="size_50_plus">👥 50+ Employees</label>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                <div class="mb-3">
+                    <label for="bus_route" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Bus Route (<small style="font-weight: normal;">Optional</small>) :</label>
+                    <textarea class="form-control" id="bus_route" name="bus_route" placeholder="Bhosari, Chakan, Moshi, ...etc"></textarea>
+                    <div class="invalid-feedback">Please provide a bus route or type 'NA'.</div>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="area" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Area:</label>
+                    <select class="form-select" id="area" name="area" required>
+                        <option value="" disabled selected>Select an area</option>
+                        <option value="chakan">Chakan</option>
+                        <option value="bhosari">Bhosari</option>
+                        <option value="moshi">Moshi</option>
+                        <option value="talegaon">Talegaon</option>
+                        <option value="khed">Khed</option>
+                        <option value="varale">Pimpri-Chinchwad</option>
+                        <option value="ranjangaon">Ranjangaon</option>
+                        <option value="wagholi">Wagholi</option>
+                        <option value="hadapsar">Hadapsar</option>
+                        <option value="Pune City">Pune City</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    <div class="invalid-feedback">Please select an area.</div>
+                </div>
+
+
+                    <div class="mb-3">
+                        <label for="village" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Village Name :</label>
+                        <input type="text" class="form-control" id="village" name="village" placeholder="Enter village name (e.g., Alandi, Chakan, Moshi)" required>
+                        <div class="invalid-feedback">Please provide a village name.</div>
+                    </div>
+
+
+                        <div class="row my-4 g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-secondary w-100 p-2 style-none " style="font-family: Inter, sans-serif;">
+                                     <a href="/hr/job-post-candidate/" class="style-none">⬅ Back</a>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-info w-100 p-2" style="font-family: Inter, sans-serif;">
+                                    Submit ➡
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bootstrap 5 form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

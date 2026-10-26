@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>  
+  {% block title %}
+  {% endblock %}
+  </title>
+
+  <meta name="description" content="{% block meta_description %} {% endblock %}">
+  <link rel="icon" type="image/x-icon" href="{% static 'img2/logo3.jpeg' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9155980795220429"
+     crossorigin="anonymous"></script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MHDEEYBC61"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MHDEEYBC61');
+  </script>
+
+  <style>
+
+  /* Overlay covers the full screen */
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* The rotating ring */
+.ring {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 5px solid rgba(0, 123, 255, 0.3);
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+/* Logo sits on top */
+.logo {
+  width: 100px;
+  height: auto;
+  position: relative;
+}
+
+/* Keyframe animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Hide main content while loading */
+.hidden {
+  display: none;
+}
+
+
+    .navbar-brand img {
+      height: auto;
+      width: 180px;
+    }
+    .nav-item{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    @media (max-width: 992px) {
+      .navbar-brand img { 
+        width: 180px; 
+       
+      }
+    }
+    @media (max-width: 576px) {
+      .navbar-brand img { width: 125px; }
+    }
+    @media (max-width: 400px) {
+      .navbar-brand img { width: 100px; }
+    }
+
+    /* Search modal styling */
+    .search-modal .modal-dialog {
+      max-width: 70%;
+      margin: 0 auto;
+      margin-top: 100px; /* Just below navbar */
+    }
+
+       @media (max-width: 992px) {
+      .search-modal .modal-dialog{ 
+          max-width: 80%;
+          margin: 0 auto;
+          margin-top: 70px; /* Just below navbar */
+       
+      }
+    }
+    @media (max-width: 576px) {
+      .search-modal .modal-dialog{ 
+          max-width: 90%;
+          margin: 0 auto;
+          margin-top: 70px; /* Just below navbar */ 
+      }
+    }
+    @media (max-width: 400px) {
+      .search-modal .modal-dialog {
+        max-width: 90%;
+        margin: 0 auto;
+        margin-top: 70px; /* Just below navbar */
+      }
+    }
+
+
+    .search-modal .modal-content {
+      background-color: black;
+      color: white;
+      border-radius: 8px;
+    }
+    .modal-backdrop {
+      background-color: rgba(0,0,0,0.3) !important; /* light overlay */
+    }
+
+
+    .menuBtn {
+      height: auto;
+      width: 35px;
+    }
+    @media (max-width: 992px) {
+      .menuBtn { width: 30px; }
+    }
+    @media (max-width: 576px) {
+      .menuBtn { width: 24px; }
+    }
+    @media (max-width: 400px) {
+      .menuBtn { width: 24px; }
+    }
+
+    .bi {
+      font-weight: bold; /* affects some icons slightly */
+      -webkit-text-stroke: 1px; /* adds outline thickness */
+    }
+
+
+  .btn-custom-blue {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+  }
+  .btn-check:checked + .btn-custom-blue {
+    background-color: #fff !important;
+    color: #000;
+    border-color: #007bff;
+  }
+
+  @media (max-width: 400px) {
+  .btn-custom-blue {
+    font-size: 12px; /* smaller, more mobile-friendly text */
+    padding: 0.15rem 0.5rem; /* adjust padding for compactness */
+  }
+}
+
+
+ .offcanvas-logo{
+  width: 10px;
+  height: auto;
+ }
+
+
+    
+    
+
+     .btn-edu {
+        background-color: saddlebrown;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        margin: 4px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    .btn-edu:hover {
+        background-color: #8b4513; /* darker brown */
+        color: #fff;
+    }
+    .btn-check:checked + .btn-edu {
+        background-color: #0d6efd; /* Bootstrap primary */
+        color: #fff;
+    }
+
+.nameItem {
+  position: absolute;
+  top: 120px;    /* positions 120px from the top of the nearest positioned ancestor */
+  left: 120px;
+  background-color: black;   /* or right/bottom as needed */
+  z-index: 5;
+}
+
+
+* { box-sizing: border-box; }.fixed-bottom .btn-link {
+  padding: 0.5rem; /* larger tap area */
+}
+
+.fixed-bottom .btn-link:hover {
+  background-color: rgba(0,0,0,0.05);
+  border-radius: 0.25rem;
+}
+/* Apply a lighter font weight to the icons */
+.fixed-bottom .btn-link i {
+  font-weight: lighter; /* Makes the icons less bold */
+}
+
+
+
+</style>
+
+{% block StyleOld %}
+{% endblock %}
+{% block styleOld %}
+{% endblock %}
+{% block styleDetails %}
+{% endblock %}
+
+</head>
+<body>
+  {% load static %}
+
+<!-- Navbar -->
+<nav class="navbar bg-white sticky-top border-bottom shadow">
+  <div class="container-fluid px-2">
+
+    <!-- Logo -->
+    <a class="navbar-brand m-0" href="#">
+      <img src="{% static 'img2/logo1.png' %}" alt="Logo">
+    </a>
+
+    <div class="ms-auto d-flex align-items-center me-2">
+
+      <!-- Search Icon triggers modal -->
+      <button id="searchBtn" class="btn btn-light me-2 m-1" type="button" data-bs-toggle="modal" data-bs-target="#searchModal">
+        <i class="bi bi-search fw-bold"></i>
+      </button>
+
+      <!-- Hamburger Menu -->
+      <button class="btn menuBtn p-0 " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+        <img src="https://getlokalapp.com/_next/image?url=%2Fassets%2Fdesktop_menu.webp&w=1920&q=75" width="35" height="35" alt="menu">
+      </button>
+
+    </div>
+  </div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Search Modal -->
+<!-- <div class="modal fade search-modal" id="searchModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-4" style="background-color: rgb(136, 195, 212); border: 2px solid black">
+      <h5>Search Jobs</h5>
+      <input type="text" class="form-control mt-3" placeholder="Type to search...">
+    </div>
+  </div>
+</div> -->
+
+<!-- Search Modal -->
+  
+
+  <!-- Modal with GET-form -->
+  <div class="modal fade mt-5" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content p-4" style="background-color: rgb(136, 195, 212); border: 2px solid black;">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-dark" id="searchModalLabel">Search Jobs</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <!-- Form starts here -->
+        <form action="/search-jobs" method="get">
+          <div class="modal-body">
+            <!-- Job Title Filter -->
+            <div class="mb-3">
+              <label for="searchTitle" class="form-label fw-bold text-dark">Job Title:</label>
+              <input type="text" id="searchTitle" name="searchTitle" class="form-control" placeholder="Type job title...">
+            </div>
+
+            <!-- Min Education Filter -->
+            <div class="mb-3">
+              <label class="form-label fw-bold text-dark">Min Education:</label>
+              <div class="container">
+                <div class="row g-1">
+                  <!-- Education Options -->
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="edu10" value="10th" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="edu10">10th</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="edu12" value="12th" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="edu12">12th</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduIti" value="iti" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduIti">ITI</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduDip" value="diploma" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduDip">Diploma</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduEng" value="engineering" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduEng">Engineering</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduGrad" value="graduation" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduGrad">Graduation</label>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduUn" value="uneducated" autocomplete="off">
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduUn">Uneducated</label>
+                  </div>
+                  <!-- "Any" option -->
+                  <div class="col-6 col-sm-3 col-md-3 col-lg-auto">
+                    <input type="radio" class="btn-check" name="minEducation" id="eduAny" value="any" autocomplete="off" checked>
+                    <label class="btn btn-sm btn-custom-blue w-100" for="eduAny">Any</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Experience Filter -->
+            <div class="mb-3">
+              <label for="minExperience" class="form-label fw-bold text-dark">Experience:</label>
+              <select id="minExperience" name="minExperience" class="form-select">
+                <option value="any" selected>Any Experience</option>
+                <option value="fresher ">Fresher</option>
+                <option value="1-3 years">1-3 Year's</option>
+                <option value="3-5 years">3-5 Year's</option>
+                <option value="5-10 years">5-10 Year's</option>
+                <option value="10+ years">10+ Year's</option>
+              </select>
+            </div>
+
+            <!-- Shift Filter -->
+            <div class="mb-3">
+              <label for="shiftSelect" class="form-label fw-bold text-dark">Shift:</label>
+              <select id="shiftSelect" name="shift" class="form-select">
+                <option value="any" selected>Any Shift</option>
+                <option value="three">Three Shifts</option>
+                <option value="first">First Shift</option>
+                <option value="second">Second Shift</option>
+                <option value="night">Night Shift</option>
+                <option value="general">General Shift</option>
+                <option value="day">Day Shift</option>
+                <option value="day_night">Day & Night</option>
+              </select>
+            </div>
+          </div>
+          <!-- Footer with Submit Button -->
+          <div class="modal-footer justify-content-center">
+            <button type="submit" class="btn btn-primary w-100 w-md-auto">Apply</button>
+          </div>
+        </form>
+        <!-- Form ends here -->
+      </div>
+    </div>
+  </div>
+
+
+
+
+<!-- Offcanvas Menu -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
+  <div class="offcanvas-header">
+    <!-- <h5 class="offcanvas-title">www.ChakanJob.com</h5> -->
+    <a class=" offcanvas-logo m-0 p-2 px-1 " href="/">
+      <img src="{% static 'img2/logo1.png' %}" alt="Logo" width="150px" height="auto">
+    </a>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body ">
+    {% if request.session.username %}
+    <div class="d-flex  align-items-center ">
+      <span class="rounded-circle bg-primary text-dark d-flex justify-content-center align-items-center  border m-2"
+            style="width: 40px; height: 40px; font-size: 1.25rem;">
+        {{ request.session.username|first|upper }}
+      </span>
+      <small class=" fw-bold">{{ request.session.username }}</small>
+    </div>
+    {% endif %}
+    <ul class="navbar-nav">
+      <li class="nav-item px-1 px-3 fw-bold"><a class="nav-link" href="/">Home</a></li>
+      {% if request.session.username %}
+      <li class="nav-item px-1 px-3 fw-bold"><a class="nav-link" href="/hr/job-post">New Job Post</a></li>
+      <li class="nav-item px-1 px-3 fw-bold"><a class="nav-link" href="/hr/job-applications">Applications</a></li>
+      {% endif %}
+    </ul>
+    <hr class="m-0">
+    <div class="container text-center py-2">
+    {% if request.session.username %}
+      <a href="/hr/logout" class="btn btn-outline-primary m-1 w-100">HR Logout</a>
+    {% else %}
+      <a href="/hr/login" class="btn btn-outline-primary m-1 w-100">HR Login</a>
+      <a href="/hr/signup" class="btn btn-primary m-1 w-100">HR Sign Up</a>
+    {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{% block content %}
+
+{% endblock %}
+
+
+<!-- Footer  -->
+<div class="d-block d-md-none fixed-bottom bg-white border-top shadow-sm social-media" style="z-index: 10;">
+  <div class="container-fluid p-2">
+    <div class="row gx-2">
+      <!-- Home -->
+      <div class="col text-center">
+        <a href="https://www.chakanjob.com" class="btn btn-link p-0 text-success py-1" title="Home">
+          <img src="/static/img2/logo3.jpeg" alt="Chakan Job Home" style="width: 28px; height: 28px; vertical-align: middle; border-radius: 50%;">
+        </a>
+      </div>
+      <!-- WhatsApp -->
+      <div class="col text-center">
+        <a href="https://whatsapp.com/channel/0029VbBUdgM9RZAWKxY8iM3r" class="btn btn-link p-0 text-success" title="WhatsApp">
+          <i class="bi bi-whatsapp fs-3"></i>
+        </a>
+      </div>
+
+      <!-- Instagram -->
+      <div class="col text-center">
+        <a href="https://www.instagram.com/chakanjob01/" class="btn btn-link p-0 text-danger" title="Instagram">
+          <i class="bi bi-instagram fs-3"></i>
+        </a>
+      </div>
+
+
+      <!--  ============  Telegram ==================================================== -->
+      <div class="col text-center">
+        <a href="https://t.me/chakanjob_com" class="btn btn-link p-0 text-info" title="Telegram">
+          <i class="bi bi-telegram fs-3"></i>
+        </a>
+      </div>
+
+
+      <!-- Profile / User -->
+      <div class="col text-center">
+        <a href="" class="btn btn-link p-0 text-primary" title="Profile">
+          <i class="bi bi-person-circle fs-3"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--  ==================== Footer ======================================================= -->
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+{% block jsScript %}
+
+{% endblock %}
+<script type="module">
+
+  // const btn1 = document.getElementById('toggleBtn1');
+  // const collapse1 = document.getElementById('applicants1');
+  // collapse1.addEventListener('shown.bs.collapse', () => {
+  //   btn1.textContent = 'Close';
+  //   btn1.classList.replace('btn-dark', 'btn-secondary');
+  // });
+  // collapse1.addEventListener('hidden.bs.collapse', () => {
+  //   btn1.textContent = 'View Applicants';
+  //   btn1.classList.replace('btn-secondary', 'btn-dark');
+  // });
+
+
+
+    window.addEventListener('load', function() {
+    // Ensure preloader is visible immediately
+    const preloader = document.getElementById('preloader');
+    const content = document.getElementById('main-content');
+    
+    // Hide after 2 seconds
+    setTimeout(function() {
+      preloader.style.display = 'none';
+      content.classList.remove('hidden');
+    }, 600); 
+  });
+   console.log("working 23")
+</script>
+</body>
+</html>

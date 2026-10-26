@@ -1,0 +1,49 @@
+{% extends 'job/base.html' %}
+
+{% block title %}chakanJob.com - Job Applicants{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+  <div class="border-none">
+    <div class="card-body">
+      <h1 class="card-title mb-4 fw-bold text-center">
+        {{ post.job_title }} Job Applicants
+      </h1>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Qualification</th>
+              <th>Mobile Number</th>
+              <th>Current Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for application in applications %}
+              <tr>
+                <td>{{ application.full_name }}</td>
+                <td>{{ application.age }}</td>
+                <td>{{ application.qualification }} {{ application.course_name }}</td>
+                <td>{{ application.mobile_number }}</td>
+                <td>{{ application.current_address }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No applicants yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block jsScript %}
+
+</script>
+{% endblock %}

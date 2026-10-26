@@ -1,0 +1,262 @@
+{% extends 'job/base.html' %}
+
+{% block title %}HR Registration - My Amazing Site{% endblock %}
+{% block styleOld %}
+<style>
+.style-none {
+    /* all: unset;
+    display: inline-block; */
+    text-decoration: none;
+    cursor: pointer;
+    background-color: #CBCCCE;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 bg-primary p-3 rounded fw-bold" style="font-family: Inter, sans-serif;">New Job Post</h2>
+                    {% if messages %}
+                        <div class="alert">
+                            <ul class="bg-warning p-2  list-unstyled  rounded" style="text-decoration: none;">
+                                {% for message in messages %}
+                                    <li class="{{ message.tags }} px-3">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <form method="post" action="{% url 'hr_post' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+
+                        <!-- Heading boxex start  -->
+
+                        <div class="container my-4" style="max-width: 900px; font-family: 'Noto Sans', sans-serif;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom" style="border-color: #CBCCCE; padding: 24px 0 32px 0;">
+
+                                <!-- Step 1 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    1
+                                </button>
+                                <div class="text-sm fw-bold mt-2" style="color: #595959;">Job <br> Details</div>
+                                </div>
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 2 -->
+                                    <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    2
+                                </button>
+                                <div class="text-sm  mt-2" style="color: #595959;">Candidate<br> Requirements</div>
+                                </div>
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 3 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    3
+                                </button>
+                                <div class="text-sm  mt-2" style="color: #595959;">Company <br> details</div>
+                                </div>
+                            </div>
+                            </div>
+                        <!-- Heading boxex  end -->
+                        
+                        <div class="mb-3">
+                            <label for="Job Title" class="form-label mt-3 fw-bold" style="font-family: Inter, sans-serif;">JOB Title :</label>
+                            <input type="text" id="job_title" name="job_title" value="{{ job_title }}" placeholder="HR,Supervisor,...etc" class="form-control" required>
+                            <div class="invalid-feedback">Write a short title...</div>
+                        </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Number Of Openings :</label>
+                                <input type="number" id="number_of_opening" name="number_of_opening" value="{{ number_of_opening }}" placeholder="01" class="form-control" required>
+                                <div class="invalid-feedback">Total Number Of Opening....</div>
+                            </div> 
+
+                            <div class="row g-3 mb-3">
+                                    <!-- Minimum Salary -->
+                                    <div class="col-md-6">
+                                        <label for="min_salary" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Minimum Salary (₹)</label>
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="min_salary"
+                                            name="min_salary"
+                                            placeholder="Min"
+                                            min="0"
+                                            required>
+                                    <div class="invalid-feedback">
+                                        Please enter a minimum salary.
+                                    </div>
+                                    </div>
+
+                                    <!-- Maximum Salary -->
+                                    <div class="col-md-6">
+                                        <label for="max_salary" class="form-label fw-bold" style="font-family: Inter, sans-serif;">Maximum Salary (₹)</label>
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="max_salary"
+                                            name="max_salary"
+                                            placeholder="Max"
+                                            min="0"
+                                            required>
+                                    <div class="invalid-feedback">
+                                        Please enter a maximum salary.
+                                    </div>
+                            </div>
+                            
+
+                        <div class="mb-3">
+                                <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Shifts :</label>
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_three" name="shift" value="three" autocomplete="off">
+                                        <label class="btn btn-outline-primary w-100" for="shift_three">🕒 Three <br> Shifts</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_first" name="shift" value="first" autocomplete="off">
+                                        <label class="btn btn-outline-success w-100" for="shift_first">🌅 First <br> Shift</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_second" name="shift" value="second" autocomplete="off">
+                                        <label class="btn btn-outline-warning w-100" for="shift_second">☀ Second <br> Shift</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_night" name="shift" value="night" autocomplete="off">
+                                        <label class="btn btn-outline-dark w-100" for="shift_night">🌙 Night <br> Shift</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_general" name="shift" value="general" autocomplete="off">
+                                        <label class="btn btn-outline-info w-100" for="shift_general">📅 General <br> Shift</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_day" name="shift" value="day" autocomplete="off">
+                                        <label class="btn btn-outline-secondary w-100" for="shift_day">🌞 Day <br> Shift</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="shift_day_night" name="shift" value="day_night" autocomplete="off">
+                                        <label class="btn btn-outline-danger w-100" for="shift_day_night">🌓 Day & <br> Night</label>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <input type="checkbox" class="btn-check" id="any_shift" name="shift" value="any" autocomplete="off">
+                                        <label class="btn btn-outline-primary w-100" for="any_shift">✅ Any <br> Shift</label>
+                                    </div>
+                                </div>
+                            </div>
+                        
+
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">
+                                Job Type :
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <input type="radio" class="btn-check" name="job_type" id="field_job" value="Field Job" autocomplete="off">
+                                    <label class="btn btn-outline-primary w-100" for="field_job">🏞 Field <br> Job</label>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <input type="radio" class="btn-check" name="job_type" id="office_job" value="Office Job" autocomplete="off">
+                                    <label class="btn btn-outline-success w-100" for="office_job">🏢 Office <br> Job</label>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <input type="radio" class="btn-check" name="job_type" id="work_from_home" value="Work From Home" autocomplete="off">
+                                    <label class="btn btn-outline-warning w-100" for="work_from_home">💻 Work <br> From Home</label>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <input type="radio" class="btn-check" name="job_type" id="industry_job" value="Industry Job" autocomplete="off">
+                                    <label class="btn btn-outline-dark w-100" for="industry_job">🏭 Industry <br> Job</label>
+                                </div>
+                            </div>
+                        </div>
+
+                   <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Facility :</label>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3">
+                                <input type="checkbox" class="btn-check" id="facility_bus" name="facility" value="bus" autocomplete="off">
+                                <label class="btn btn-outline-primary w-100" for="facility_bus">🚌 Bus</label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="checkbox" class="btn-check" id="facility_canteen" name="facility" value="canteen" autocomplete="off">
+                                <label class="btn btn-outline-success w-100" for="facility_canteen">🍳 Canteen</label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="checkbox" class="btn-check" id="facility_stay_rooms" name="facility" value="stay_rooms" autocomplete="off">
+                                <label class="btn btn-outline-warning w-100" for="facility_stay_rooms">🏨 Stay Rooms</label>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <input type="checkbox" class="btn-check" id="facility_pf" name="facility" value="pf" autocomplete="off">
+                                <label class="btn btn-outline-dark w-100" for="facility_pf">📥 PF & ESIC</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="charges">
+                        <label class="form-check-label" for="charges">
+                            Are there any application charges for joining?
+                        </label>
+                    </div>
+
+
+                        <div class="row my-4 g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-secondary w-100 p-2 style-none" style="font-family: Inter, sans-serif;">
+                                    ⬅ Back
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-primary w-100 p-2" style="font-family: Inter, sans-serif;">
+                                    Next ➡
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bootstrap 5 form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

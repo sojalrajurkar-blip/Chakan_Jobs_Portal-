@@ -1,0 +1,47 @@
+{% extends 'job/base.html' %}
+
+{% block title %}chakanJob.com - My Amazing Site{% endblock %}
+
+{% block Oldstyle %}
+<style>
+
+      .bg-image {
+      background-image: url('https://getlokalapp.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Frecruiter.b74dc96b.webp&w=3840&q=75');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .content {
+      max-width: 600px;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border-radius: 8px;
+    }
+    .content h1 {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+</style>
+{% endblock %}
+{% block content %}
+  <div class="bg-image">
+    <div class="container">
+      <div class="content">
+        <h1>Your Professional Title</h1>
+        <p>Enhance your career with our expert services.</p>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block jsScript %}
+<script>
+    console.log("working js on home")
+</script>
+{% endblock %}

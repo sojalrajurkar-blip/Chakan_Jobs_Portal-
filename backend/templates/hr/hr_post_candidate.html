@@ -1,0 +1,280 @@
+{% extends 'job/base.html' %}
+
+{% block title %}HR Registration - My Amazing Site{% endblock %}
+
+{% block styleOld %}
+<style>
+.style-none {
+    text-decoration: none;
+    cursor: pointer;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 bg-primary p-3 rounded fw-bold" style="font-family: Inter, sans-serif;">New Job Post</h2>
+                    {% if messages %}
+                        <div class="alert">
+                            <ul class="bg-warning p-2  list-unstyled  rounded" style="text-decoration: none;">
+                                {% for message in messages %}
+                                    <li class="{{ message.tags }} px-3">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <form method="post" action="{% url 'hr_post_candidate' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                                                <!-- Heading boxex start  -->
+
+                        <div class="container my-4" style="max-width: 900px; font-family: 'Noto Sans', sans-serif;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom" style="border-color: #CBCCCE; padding: 24px 0 32px 0;">
+
+                                <!-- Step 1 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                    <img
+                                        src="https://getlokalapp.com/_next/image?url=%2Fassets%2Fpost_job_success.webp&w=96&q=75"
+                                        alt="Candidate Requirement"
+                                        width="36"
+                                        height="36"
+                                        class="rounded-circle bg-white"
+                                        loading="lazy"
+                                        decoding="async"
+                                        style="color: transparent;"
+                                    >
+                                    <div class="text-sm fw-normal mt-2" style="color: #595959;">Job <br> Details</div>
+                                </div>
+
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 2 -->
+                                    <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    2
+                                </button>
+                                <div class="text-sm  mt-2" style="color: #595959;">Candidate<br> Requirements</div>
+                                </div>
+
+                                <!-- Line -->
+                                <div class="flex-grow-1 mx-2 d-none d-sm-flex align-items-center" style="height: 2px; background-color: #CBCCCE; margin-top: 18.5px; width: 10vw;"></div>
+
+                                <!-- Step 3 -->
+                                <div class="d-flex flex-column align-items-center text-center" style="width: 86px;">
+                                <button type="button"
+                                    class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 36px; height: 36px; border: 2px solid #FFBB00; background-color: #FFF1CC; color: #333436; font-weight: 700; font-size: 1.1rem; line-height: 1.2;"
+                                >
+                                    3
+                                </button>
+                                <div class="text-sm  mt-2" style="color: #595959;">Company <br> details</div>
+                                </div>
+                            </div>
+                            </div>
+                        <!-- Heading boxex  end -->
+
+
+                        <h5 class="fw-bold" style="font-family: Inter, sans-serif;">Candidate Requirement</h5>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Minimum Education:</label>
+                            <div class="d-flex flex-wrap">
+                                
+                                <input type="checkbox" name="min_education" class="btn-check" value="10th" id="min_edu10" autocomplete="off">
+                                <label class="btn btn-sm btn-edu " for="min_edu10">10th</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check" value="12th" id="min_edu12" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="min_edu12">12th</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check" value="engineering" id="engineering" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="engineering">Engineering</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check" value="iti" id="iti" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="iti">ITI</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check"  value="diploma" id="diploma" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="diploma">Diploma</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check" value="graduation" id="graduation" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="graduation">Graduation</label>
+
+                                <input type="checkbox" name="min_education" class="btn-check" value="uneducated" id="uneducated" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="uneducated">Uneducated</label>
+
+                            </div>
+                        </div>
+
+
+                            <div class="mb-3">
+                                <label for="text" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Course Name ( <small style="font-weight: normal;">Optional</small> ) :</label>
+                                <input type="text" id="course_name" name="course_name" value="{{ course_name }}" placeholder="BSc in Checmistry , etc" class="form-control">
+                                <div class="invalid-feedback">add your degree name....</div>
+                            </div> 
+
+
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Experience:</label>
+                            <div class="d-flex flex-wrap">
+
+                                <input type="radio" class="btn-check" value="fresher" name="experience" id="exp_fresher" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="exp_fresher">Fresher</label>
+
+                                <input type="radio" class="btn-check" value="1-3 years" name="experience" id="exp_1_3" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="exp_1_3">1-3 Years</label>
+
+                                <input type="radio" class="btn-check" value="3-5 years" name="experience" id="exp_3_5" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="exp_3_5">3-5 Years</label>
+
+                                <input type="radio" class="btn-check" value="5-10 years" name="experience" id="exp_5-10" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="exp_5-10">5-10 Years</label>
+
+                                <input type="radio" class="btn-check" value="10+ years" name="experience" id="exp_10+" autocomplete="off">
+                                <label class="btn btn-sm btn-edu" for="exp_10+">10+ Years</label>
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Gender:</label>
+                            <div class="row g-3">
+                                <div class="col-1"></div>
+                                <div class="col-3">
+                                    <div class="form-check p-2 text-left">
+                                        <input class="form-check-input" type="radio" name="gender" value="male" id="male">
+                                        <label class="form-check-label ms-2" for="male">Male</label>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-check p-2 text-left">
+                                        <input class="form-check-input" type="radio" name="gender" value="female" id="female">
+                                        <label class="form-check-label ms-2" for="female">Female</label>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-check p-2 text-left">
+                                        <input class="form-check-input" type="radio" name="gender" value="any" id="other" checked>
+                                        <label class="form-check-label ms-2" for="other">Any</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                 <div class="mb-3">
+                    <label class="form-label fw-bold" style="font-family: Inter, sans-serif;">Manage Candidate Through :</label>
+                    <div class="row g-2">
+                        <!-- Calls -->
+                        <div class="col-6 col-md-3">
+                            <input type="checkbox" class="btn-check" name="manage_through" value="calls" id="through_calls" autocomplete="off">
+                            <label class="btn btn-outline-primary w-100" for="through_calls">
+                                <i class="bi bi-telephone-fill me-1"></i> Calls
+                            </label>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div class="col-6 col-md-3">
+                            <input type="checkbox" class="btn-check" name="manage_through" value="whatsapp" id="through_whatsapp" autocomplete="off">
+                            <label class="btn btn-outline-success w-100" for="through_whatsapp">
+                                <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                            </label>
+                        </div>
+
+                        <!-- Apply -->
+                        <div class="col-6 col-md-3">
+                            <input type="checkbox" class="btn-check" name="manage_through" value="apply" id="through_apply" autocomplete="off">
+                            <label class="btn btn-outline-warning w-100" for="through_apply">
+                                <i class="bi bi-arrow-up-circle-fill me-1"></i> Apply
+                            </label>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-6 col-md-3">
+                            <input type="checkbox" class="btn-check" name="manage_through" value="email" id="through_email" autocomplete="off">
+                            <label class="btn btn-outline-danger w-100" for="through_email">
+                                <i class="bi bi-envelope-at me-1"></i> Email
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                    <div class="mb-3">
+                        <label for="text" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Calling Number :</label>
+                        <input type="text" id="calling_number" name="calling_number" value="{{ calling_number }}" placeholder="" class="form-control" required>
+                        <div class="invalid-feedback">Provide Calling Number....</div>
+                    </div> 
+
+                    <div class="mb-3">
+                        <label for="text" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Whatapp Number :</label>
+                        <input type="text" id="whatsapp_number" name="whatsapp_number" value="{{ whatsapp_number }}" placeholder="" class="form-control" required>
+                        <div class="invalid-feedback">Provide Whatapp Number....</div>
+                    </div> 
+
+
+                    <div class="mb-3">
+                        <label for="text" class="form-label fw-bold" style="font-family: Inter, sans-serif;" >Email :</label>
+                        <input type="text" id="email" name="email" value="{{ email }}" placeholder="" class="form-control" required>
+                        <div class="invalid-feedback">Provide Email ....</div>
+                    </div>
+
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="terms" id="termsCheck" checked>
+                        <label class="form-check-label" for="termsCheck">
+                            I agree to the Terms and Conditions of www.chakanjob.com</a>.
+                        </label>
+                    </div>
+
+
+                        <div class="row my-4 g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-secondary w-100 p-2 style-none text-decoration-none " style="font-family: Inter, sans-serif;">
+                                     <a href="/hr/job-post/" class="style-none text-decoration-none">⬅ Back</a>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button  class="btn btn-primary w-100 p-2" style="font-family: Inter, sans-serif;">
+                                    Next ➡ 
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bootstrap 5 form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

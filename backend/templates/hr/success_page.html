@@ -1,0 +1,62 @@
+{% extends 'job/base.html' %}
+
+{% block title %}Success | chakanJob.com{% endblock %}
+
+{% block Oldstyle %}
+<style>
+.bg-hero {
+  background-image: url('https://getlokalapp.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Frecruiter.b74dc96b.webp&w=3840&q=75');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.bg-hero .mask {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  padding: 2rem;
+  color: #fff;
+}
+.content h1 {
+  font-size: 3rem;
+}
+.icon-circle {
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  padding: 0.75rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-hero mt-5">
+  <div class="mask"></div>
+  <div class="container content text-center">
+    <div class="icon-circle mx-auto">
+      <i class="fas fa-check-circle text-white"></i>
+    </div>
+    <h1>Success!</h1>
+    <p class="lead">Your profile has been successfully added new post. Explore job opportunities or continue building your career with us.</p>
+    <a href="/" class="btn btn-primary btn-lg mt-3">
+      <i class="fas fa-home"></i> Go to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block jsScript %}
+<script>
+  console.log("Hero section loaded.");
+</script>
+{% endblock %}
