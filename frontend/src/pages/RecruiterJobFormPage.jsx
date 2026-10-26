@@ -8,7 +8,7 @@ import { Button, AlertBanner, Spinner } from '../components/common/UIComponents'
 export const RecruiterJobFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const isEditing = Boolean(id);
 
   const [formData, setFormData] = useState({
