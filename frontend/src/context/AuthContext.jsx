@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/api';
+import { authService, candidateService } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -63,6 +63,20 @@ export const AuthProvider = ({ children }) => {
     return { success: false, error: res.data?.error };
   };
 
+  const registerCandidate = async (payload) => {
+    const res = await candidateService.register(payload);
+    if (res.data?.success) {
+      const newToken = res.data.token;
+      const newUser = res.data.user;
+      setToken(newToken);
+      setUser(newUser);
+      localStorage.setItem('chakan_job_auth_token', newToken);
+      localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
+      return { success: true };
+    }
+    return { success: false, error: res.data?.error };
+  };
+
   const logout = async () => {
     try {
       if (token) {
@@ -83,15 +97,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('chakan_job_user', JSON.stringify(updatedUser));
   };
 
+  const isRecruiter = user?.role === 'RECRUITER';
+  const isCandidate = user?.role === 'CANDIDATE';
+  const isAdmin = user?.role === 'ADMIN' || !!user?.is_staff;
+
   return (
     <AuthContext.Provider
       value={{
         token,
         user,
         isAuthenticated: !!token && !!user,
+        isRecruiter,
+        isCandidate,
+        isAdmin,
         loading,
         login,
         register,
+        registerCandidate,
         logout,
         updateUser,
       }}

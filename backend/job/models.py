@@ -123,6 +123,13 @@ class Application(models.Model):
         on_delete=models.CASCADE,
         related_name='applications'
     )
+    candidate = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='candidate_applications'
+    )
     full_name = models.CharField(max_length=255)
     age = models.PositiveSmallIntegerField()
     qualification = models.CharField(max_length=100)
@@ -138,6 +145,7 @@ class Application(models.Model):
         indexes = [
             models.Index(fields=['job_post', 'submitted_at']),
             models.Index(fields=['mobile_number']),
+            models.Index(fields=['candidate', 'submitted_at']),
         ]
 
     def __str__(self):

@@ -6,6 +6,9 @@ import { HomePage } from './pages/HomePage';
 import { JobSearchPage } from './pages/JobSearchPage';
 import { JobDetailPage } from './pages/JobDetailPage';
 import { CandidateApplyPage } from './pages/CandidateApplyPage';
+import { CandidateLoginPage } from './pages/CandidateLoginPage';
+import { CandidateSignupPage } from './pages/CandidateSignupPage';
+import { CandidateApplicationsPage } from './pages/CandidateApplicationsPage';
 import { RecruiterLoginPage } from './pages/RecruiterLoginPage';
 import { RecruiterSignupPage } from './pages/RecruiterSignupPage';
 import { RecruiterDashboardPage } from './pages/RecruiterDashboardPage';
@@ -23,6 +26,18 @@ export function App() {
           <Route path="jobs" element={<JobSearchPage />} />
           <Route path="jobs/:id" element={<JobDetailPage />} />
           <Route path="jobs/:id/apply" element={<CandidateApplyPage />} />
+
+          {/* Candidate Authentication & Applications */}
+          <Route path="candidate/login" element={<CandidateLoginPage />} />
+          <Route path="candidate/signup" element={<CandidateSignupPage />} />
+          <Route
+            path="candidate/applications"
+            element={
+              <ProtectedRoute redirectTo="/candidate/login">
+                <CandidateApplicationsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Employer Authentication Routes */}
           <Route path="recruiter/login" element={<RecruiterLoginPage />} />

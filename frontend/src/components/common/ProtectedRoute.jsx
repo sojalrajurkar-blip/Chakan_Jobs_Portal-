@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Spinner } from './UIComponents';
 
-export const ProtectedRoute = ({ children }) => {
+export const ProtectedRoute = ({ children, redirectTo }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -12,7 +12,8 @@ export const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/recruiter/login" state={{ from: location }} replace />;
+    const target = redirectTo || (location.pathname.startsWith('/candidate') ? '/candidate/login' : '/recruiter/login');
+    return <Navigate to={target} state={{ from: location }} replace />;
   }
 
   return children;

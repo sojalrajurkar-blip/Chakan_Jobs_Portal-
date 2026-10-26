@@ -285,3 +285,45 @@ class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):
         if value not in Application.Status.values:
             raise serializers.ValidationError(f"Invalid status. Choose from: {Application.Status.values}")
         return value
+
+
+class CandidateApplicationDetailSerializer(serializers.ModelSerializer):
+    job_id = serializers.IntegerField(source='job_post.id', read_only=True)
+    job_title = serializers.CharField(source='job_post.title', read_only=True)
+    company_name = serializers.CharField(source='job_post.company_name', read_only=True)
+    area = serializers.CharField(source='job_post.area', read_only=True)
+    min_salary = serializers.IntegerField(source='job_post.min_salary', read_only=True)
+    max_salary = serializers.IntegerField(source='job_post.max_salary', read_only=True)
+    job_type_display = serializers.CharField(source='job_post.get_job_type_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    resume_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Application
+        fields = [
+            'id',
+            'job_id',
+            'job_title',
+            'company_name',
+            'area',
+            'min_salary',
+            'max_salary',
+            'job_type_display',
+            'full_name',
+            'mobile_number',
+            'qualification',
+            'course_name',
+            'status',
+            'status_display',
+            'resume_url',
+            'submitted_at',
+        ]
+
+    def get_resume_url(self, obj):
+        if obj.resume_file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.resume_file.url)
+            return obj.resume_file.url
+        return None
+

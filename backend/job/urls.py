@@ -3,6 +3,7 @@ from .views import (
     PublicJobListView,
     PublicJobDetailView,
     CandidateApplyView,
+    CandidateMyApplicationsListView,
     FilterChoicesView,
     RecruiterJobListCreateView,
     RecruiterJobDetailView,
@@ -23,6 +24,9 @@ urlpatterns = [
     path('api/jobs/filters/', FilterChoicesView.as_view(), name='api_job_filters'),
     path('api/jobs/<int:pk>/', PublicJobDetailView.as_view(), name='api_job_detail'),
     path('api/jobs/<int:pk>/apply/', CandidateApplyView.as_view(), name='api_candidate_apply'),
+
+    # Candidate Application Tracking
+    path('api/candidate/applications/', CandidateMyApplicationsListView.as_view(), name='api_candidate_applications'),
 
     # Recruiter Management REST API Endpoints
     path('api/recruiter/jobs/', RecruiterJobListCreateView.as_view(), name='api_recruiter_jobs'),

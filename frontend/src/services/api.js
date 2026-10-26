@@ -24,12 +24,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // If unauthorized on a protected route, clear stale token
       const currentPath = window.location.pathname;
       if (currentPath.startsWith('/recruiter/dashboard') || currentPath.startsWith('/recruiter/jobs')) {
         localStorage.removeItem('chakan_job_auth_token');
         localStorage.removeItem('chakan_job_user');
         window.location.href = '/recruiter/login';
+      } else if (currentPath.startsWith('/candidate/applications')) {
+        localStorage.removeItem('chakan_job_auth_token');
+        localStorage.removeItem('chakan_job_user');
+        window.location.href = '/candidate/login';
       }
     }
     return Promise.reject(error);
@@ -42,6 +45,11 @@ export const authService = {
   logout: () => api.post('/auth/logout/'),
   getMe: () => api.get('/auth/me/'),
   updateMe: (payload) => api.patch('/auth/me/', payload),
+};
+
+export const candidateService = {
+  register: (payload) => api.post('/auth/candidate/register/', payload),
+  getMyApplications: () => api.get('/candidate/applications/'),
 };
 
 export const jobService = {

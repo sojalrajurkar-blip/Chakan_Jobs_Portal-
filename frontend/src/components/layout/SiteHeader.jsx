@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/UIComponents';
 
 export const SiteHeader = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isRecruiter, isCandidate, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -117,38 +117,81 @@ export const SiteHeader = () => {
             <Search size={16} /> Browse Vacancies
           </Link>
 
-          {/* HR options ONLY visible when authenticated as Recruiter */}
+          {/* Authenticated Controls */}
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-              <Link
-                to="/recruiter/jobs/new"
-                style={{
-                  fontWeight: 600,
-                  fontSize: '0.9375rem',
-                  color: isActive('/recruiter/jobs/new') ? 'var(--color-brand-ink)' : 'var(--color-text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <PlusCircle size={16} /> Post a Job
-              </Link>
-              <Link to="/recruiter/dashboard">
-                <Button variant="secondary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Building2 size={16} />
-                  <span>{user?.company_name ? user.company_name.slice(0, 18) : 'Dashboard'}</span>
-                </Button>
-              </Link>
+              {isRecruiter ? (
+                <>
+                  <Link
+                    to="/recruiter/jobs/new"
+                    style={{
+                      fontWeight: 600,
+                      fontSize: '0.9375rem',
+                      color: isActive('/recruiter/jobs/new') ? 'var(--color-brand-ink)' : 'var(--color-text-secondary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <PlusCircle size={16} /> Post a Job
+                  </Link>
+                  <Link to="/recruiter/dashboard">
+                    <Button variant="secondary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Building2 size={16} />
+                      <span>{user?.company_name ? user.company_name.slice(0, 18) : 'HR Dashboard'}</span>
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/candidate/applications"
+                    style={{
+                      fontWeight: 600,
+                      fontSize: '0.9375rem',
+                      color: isActive('/candidate/applications') ? 'var(--color-brand-ink)' : 'var(--color-text-secondary)',
+                      borderBottom: isActive('/candidate/applications') ? '2px solid var(--color-brand-ink)' : 'none',
+                      padding: 'var(--space-2) 0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <Briefcase size={16} /> My Applications
+                  </Link>
+                  <Link to="/candidate/applications">
+                    <Button variant="secondary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <User size={15} />
+                      <span>{user?.full_name ? user.full_name.split(' ')[0] : (user?.mobile_number || 'Candidate')}</span>
+                    </Button>
+                  </Link>
+                </>
+              )}
+
               <Button variant="ghost" size="sm" onClick={handleLogout} title="Log Out">
                 <LogOut size={16} />
               </Button>
             </div>
           ) : (
-            <Link to="/jobs" style={{ textDecoration: 'none' }}>
-              <Button variant="primary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Search size={16} /> Find Jobs
-              </Button>
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <Link
+                to="/candidate/login"
+                style={{
+                  fontWeight: 600,
+                  fontSize: '0.9375rem',
+                  color: 'var(--color-brand-ink)',
+                  textDecoration: 'none',
+                  padding: 'var(--space-2) var(--space-3)',
+                }}
+              >
+                Candidate Login
+              </Link>
+              <Link to="/candidate/signup" style={{ textDecoration: 'none' }}>
+                <Button variant="primary" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <User size={15} /> Sign Up
+                </Button>
+              </Link>
+            </div>
           )}
         </nav>
 
@@ -198,34 +241,72 @@ export const SiteHeader = () => {
             <Search size={18} /> Browse All Jobs
           </Link>
 
-          {/* HR tools in mobile menu: only shown if logged in */}
-          {isAuthenticated && (
+          {/* If Logged in */}
+          {isAuthenticated ? (
             <div style={{ borderTop: '1px solid var(--color-border-default)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                Employer: <strong>{user?.company_name || user?.username}</strong>
-              </div>
-              <Link
-                to="/recruiter/jobs/new"
-                onClick={closeMobile}
-                style={{
-                  padding: 'var(--space-2) 0',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  color: 'var(--color-brand-ink)',
-                }}
-              >
-                <PlusCircle size={18} /> Post a Vacancy
-              </Link>
-              <Link to="/recruiter/dashboard" onClick={closeMobile} style={{ textDecoration: 'none' }}>
-                <Button variant="primary" style={{ width: '100%' }}>
-                  Go to HR Dashboard
-                </Button>
-              </Link>
-              <Button variant="danger" onClick={handleLogout} style={{ width: '100%' }}>
+              {isRecruiter ? (
+                <>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                    Employer: <strong>{user?.company_name || user?.username}</strong>
+                  </div>
+                  <Link
+                    to="/recruiter/jobs/new"
+                    onClick={closeMobile}
+                    style={{
+                      padding: 'var(--space-2) 0',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      color: 'var(--color-brand-ink)',
+                    }}
+                  >
+                    <PlusCircle size={18} /> Post a Vacancy
+                  </Link>
+                  <Link to="/recruiter/dashboard" onClick={closeMobile} style={{ textDecoration: 'none' }}>
+                    <Button variant="primary" style={{ width: '100%' }}>
+                      Go to HR Dashboard
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                    उमेदवार: <strong>{user?.full_name || user?.mobile_number}</strong>
+                  </div>
+                  <Link
+                    to="/candidate/applications"
+                    onClick={closeMobile}
+                    style={{
+                      padding: 'var(--space-2) 0',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      color: 'var(--color-brand-ink)',
+                    }}
+                  >
+                    <Briefcase size={18} /> माझे अर्ज (My Applications)
+                  </Link>
+                </>
+              )}
+
+              <Button variant="danger" onClick={handleLogout} style={{ width: '100%', marginTop: 'var(--space-2)' }}>
                 Log Out
               </Button>
+            </div>
+          ) : (
+            <div style={{ borderTop: '1px solid var(--color-border-default)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <Link to="/candidate/login" onClick={closeMobile} style={{ textDecoration: 'none' }}>
+                <Button variant="secondary" style={{ width: '100%' }}>
+                  उमेदवार लॉगिन (Candidate Login)
+                </Button>
+              </Link>
+              <Link to="/candidate/signup" onClick={closeMobile} style={{ textDecoration: 'none' }}>
+                <Button variant="primary" style={{ width: '100%' }}>
+                  मोफत नोंदणी (Sign Up Free)
+                </Button>
+              </Link>
             </div>
           )}
         </div>

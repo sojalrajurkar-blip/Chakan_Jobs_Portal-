@@ -17,7 +17,9 @@ from .serializers import (
     CandidateApplicationSerializer,
     RecruiterApplicantSerializer,
     ApplicationStatusUpdateSerializer,
+    CandidateApplicationDetailSerializer,
 )
+from accounts.models import User
 from accounts.permissions import IsRecruiter, IsVerifiedRecruiter, IsJobOwner, IsApplicationJobOwner
 
 
@@ -144,7 +146,13 @@ class CandidateApplyView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            application = serializer.save(job_post=job_post)
+            candidate_user = request.user if request.user.is_authenticated else None
+            if not candidate_user:
+                matching_candidate = User.objects.filter(mobile_number=mobile_number, role=User.Role.CANDIDATE).first()
+                if matching_candidate:
+                    candidate_user = matching_candidate
+
+            application = serializer.save(job_post=job_post, candidate=candidate_user)
 
             return Response(
                 {
@@ -168,6 +176,34 @@ class CandidateApplyView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class CandidateMyApplicationsListView(generics.ListAPIView):
+    """
+    GET /api/candidate/applications/
+    Lists all job applications submitted by the logged-in candidate.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = CandidateApplicationDetailSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return (
+            Application.objects.filter(
+                Q(candidate=user) | (Q(mobile_number=user.mobile_number) if user.mobile_number else Q())
+            )
+            .select_related('job_post')
+            .order_by('-submitted_at')
+        )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "success": True,
+            "count": queryset.count(),
+            "results": serializer.data
+        })
 
 
 class FilterChoicesView(APIView):

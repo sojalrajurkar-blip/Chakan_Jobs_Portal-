@@ -373,3 +373,41 @@ class JobCoreAPITests(TestCase):
         applicants_resp = self.client.get(f'/api/recruiter/jobs/{self.job_1.id}/applicants/')
         self.assertEqual(applicants_resp.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_candidate_application_tracking(self):
+        candidate = User.objects.create_user(
+            username='cand_santosh',
+            password='Password@123',
+            role=User.Role.CANDIDATE,
+            mobile_number='9822114477',
+            first_name='Santosh',
+            last_name='Jadhav',
+            qualification='Diploma Mechanical',
+            current_address='Nanekarwadi, Chakan',
+            is_verified=True
+        )
+        token = Token.objects.create(user=candidate)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        apply_resp = self.client.post(
+            f'/api/jobs/{self.job_1.id}/apply/',
+            {
+                'full_name': 'Santosh Jadhav',
+                'age': 24,
+                'qualification': 'Diploma Mechanical',
+                'mobile_number': '9822114477',
+                'current_address': 'Nanekarwadi, Chakan',
+            },
+            format='json'
+        )
+        self.assertEqual(apply_resp.status_code, status.HTTP_201_CREATED)
+
+        tracking_resp = self.client.get('/api/candidate/applications/')
+        self.assertEqual(tracking_resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(tracking_resp.data['success'])
+        self.assertEqual(tracking_resp.data['count'], 1)
+        app_item = tracking_resp.data['results'][0]
+        self.assertEqual(app_item['job_id'], self.job_1.id)
+        self.assertEqual(app_item['job_title'], self.job_1.title)
+        self.assertEqual(app_item['status'], Application.Status.SUBMITTED)
+
+

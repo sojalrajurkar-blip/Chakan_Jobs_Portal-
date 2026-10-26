@@ -7,9 +7,45 @@ from django.contrib.auth import logout as django_logout
 
 from .serializers import (
     UserRegistrationSerializer,
+    CandidateRegistrationSerializer,
     UserLoginSerializer,
     UserProfileSerializer,
 )
+
+
+class CandidateRegisterView(APIView):
+    """
+    POST /api/auth/candidate/register/
+    Registers a new candidate job-seeker account with 10-digit mobile number.
+    Auto-activates account and issues token.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CandidateRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response(
+                {
+                    "success": True,
+                    "message": "Candidate account created successfully.",
+                    "token": token.key,
+                    "user": UserProfileSerializer(user).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Please correct the highlighted form errors.",
+                    "details": serializer.errors,
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class RegisterView(APIView):

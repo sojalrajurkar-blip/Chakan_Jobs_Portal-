@@ -173,3 +173,46 @@ class AuthAPITests(TestCase):
         self.assertEqual(patch_resp.status_code, status.HTTP_200_OK)
         self.assertEqual(patch_resp.data['user']['position'], 'Senior VP of Operations')
         self.assertEqual(patch_resp.data['user']['mobile_number'], '9822334455')
+
+    def test_candidate_registration_and_mobile_login(self):
+        candidate_data = {
+            'full_name': 'Ramesh Baburao Shinde',
+            'mobile_number': '9850123456',
+            'qualification': 'ITI Fitter',
+            'current_address': 'Kuruli, Chakan, Pune',
+            'password': 'Candidate@Password123',
+            'confirm_password': 'Candidate@Password123',
+        }
+        # 1. Register candidate
+        reg_resp = self.client.post('/api/auth/candidate/register/', candidate_data, format='json')
+        self.assertEqual(reg_resp.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(reg_resp.data['success'])
+        self.assertEqual(reg_resp.data['user']['role'], User.Role.CANDIDATE)
+        self.assertTrue(reg_resp.data['user']['is_verified'])
+        self.assertEqual(reg_resp.data['user']['mobile_number'], '9850123456')
+
+        # 2. Login using 10-digit mobile number
+        login_resp = self.client.post(
+            self.login_url,
+            {'username_or_email': '9850123456', 'password': 'Candidate@Password123'},
+            format='json'
+        )
+        self.assertEqual(login_resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(login_resp.data['success'])
+        self.assertIn('token', login_resp.data)
+        self.assertEqual(login_resp.data['user']['role'], User.Role.CANDIDATE)
+
+    def test_candidate_duplicate_mobile_validation(self):
+        candidate_data = {
+            'full_name': 'Ramesh Shinde',
+            'mobile_number': '9850999999',
+            'password': 'Candidate@Password123',
+            'confirm_password': 'Candidate@Password123',
+        }
+        self.client.post('/api/auth/candidate/register/', candidate_data, format='json')
+
+        # Second registration with same mobile number should fail
+        dup_resp = self.client.post('/api/auth/candidate/register/', candidate_data, format='json')
+        self.assertEqual(dup_resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(dup_resp.data['success'])
+

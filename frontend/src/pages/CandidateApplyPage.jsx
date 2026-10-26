@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, ArrowLeft, Upload, FileText, X } from 'lucide-react';
 import { jobService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner, Spinner } from '../components/common/UIComponents';
 
 export const CandidateApplyPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [job, setJob] = useState(null);
   const [loadingJob, setLoadingJob] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -24,6 +26,18 @@ export const CandidateApplyPage = () => {
     mobile_number: '',
     current_address: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        full_name: prev.full_name || user.full_name || '',
+        mobile_number: prev.mobile_number || user.mobile_number || '',
+        qualification: prev.qualification || user.qualification || '',
+        current_address: prev.current_address || user.current_address || '',
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     jobService.getJobDetail(id)
@@ -115,13 +129,13 @@ export const CandidateApplyPage = () => {
           <div style={{ display: 'inline-flex', padding: 'var(--space-4)', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-state-success-bg)', marginBottom: 'var(--space-4)' }}>
             <CheckCircle2 size={48} color="var(--color-state-success)" />
           </div>
-          <h2 style={{ marginBottom: 'var(--space-2)' }}>Application Submitted!</h2>
-          <p style={{ marginBottom: 'var(--space-6)' }}>
-            Your application for <strong>{job?.title}</strong> at <strong>{job?.company_name}</strong> has been directly forwarded to the recruiter.
+          <h2 style={{ marginBottom: 'var(--space-2)' }}>अर्ज यशस्वीरित्या सादर केला! (Application Submitted!)</h2>
+          <p style={{ marginBottom: 'var(--space-6)', color: 'var(--color-text-secondary)' }}>
+            Your application for <strong>{job?.title}</strong> at <strong>{job?.company_name}</strong> has been directly forwarded to the employer.
           </p>
-          <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center' }}>
-            <Link to="/jobs"><Button variant="primary">Browse More Jobs</Button></Link>
-            <Link to="/"><Button variant="secondary">Back to Home</Button></Link>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', justifyContent: 'center' }}>
+            <Link to="/candidate/applications"><Button variant="primary">माझे सर्व अर्ज पाहा (My Applications)</Button></Link>
+            <Link to="/jobs"><Button variant="secondary">Browse More Jobs</Button></Link>
           </div>
         </div>
       </div>
@@ -136,9 +150,36 @@ export const CandidateApplyPage = () => {
 
       <div className="card" style={{ padding: 'var(--space-8)' }}>
         <h1 style={{ fontSize: '1.75rem', marginBottom: 'var(--space-2)' }}>Apply for {job?.title}</h1>
-        <p style={{ marginBottom: 'var(--space-6)' }}>
+        <p style={{ marginBottom: 'var(--space-4)' }}>
           Company: <strong>{job?.company_name}</strong> ({job?.area})
         </p>
+
+        {!isAuthenticated && (
+          <div
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              backgroundColor: 'var(--color-brand-sage)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: 'var(--space-5)',
+              fontSize: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 'var(--space-2)',
+            }}
+          >
+            <span style={{ color: 'var(--color-brand-ink)' }}>
+              आधीच नोंदणी केली आहे का? जलद अर्जासाठी लॉगिन करा.
+            </span>
+            <Link
+              to="/candidate/login"
+              state={{ from: { pathname: `/jobs/${id}/apply` } }}
+              style={{ fontWeight: 700, color: 'var(--color-brand-ink)', textDecoration: 'underline' }}
+            >
+              लॉगिन करा →
+            </Link>
+          </div>
+        )}
 
         {error && <AlertBanner type="error" message={error} details={validationErrors} />}
 

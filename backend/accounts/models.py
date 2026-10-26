@@ -40,6 +40,17 @@ class User(AbstractUser):
         blank=True,
         default=''
     )
+    qualification = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        help_text="Candidate highest educational qualification"
+    )
+    current_address = models.TextField(
+        blank=True,
+        default='',
+        help_text="Candidate residence address in Chakan/Pune"
+    )
     is_verified = models.BooleanField(
         default=False,
         help_text="Whether this account has been verified by portal administration"
