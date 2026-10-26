@@ -1,269 +1,445 @@
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
-from hr.models import Post
-from django.db.models import Q
-import re
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import CreateView
-from django.contrib import messages
-from .models import Applications
-import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import FCMToken
+from rest_framework import status, generics, filters
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q, Count
+from django.shortcuts import get_object_or_404, render
+from datetime import timedelta
+from django.utils import timezone
 
-#from .models import Application
-
-# Create your views here.
-
-
-def home(request):
-    posts = Post.objects.all()
-    for post in posts:
-        # Ensure manage_through is a list
-        if isinstance(post.manage_through, str):
-            post.manage_through = post.manage_through.strip("[]").replace("'", "").split(',')
-        # Strip any leading/trailing whitespace from each item
-        post.manage_through = [item.strip() for item in post.manage_through]
-
-        # minimum education
-        if isinstance(post.min_education, str):
-            post.min_education = post.min_education.strip("[]").replace("'", "").split(',')
-        post.min_education = [item.strip() for item in post.min_education]
-        # print(post.min_education)
-        # print(post.manage_through)
-    context = {"posts": posts}
-    return render(request, 'job/home.html', context)
+from .models import JobPost, Application, Title
+from .serializers import (
+    JobPostPublicListSerializer,
+    JobPostDetailSerializer,
+    JobPostWriteSerializer,
+    CandidateApplicationSerializer,
+    RecruiterApplicantSerializer,
+    ApplicationStatusUpdateSerializer,
+)
+from accounts.permissions import IsRecruiter, IsJobOwner, IsApplicationJobOwner
 
 
+class StandardResultsPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if isinstance(post.manage_through, str):
-        post.manage_through = post.manage_through.strip("[]").replace("'", "").split(',')
-        # Strip any leading/trailing whitespace from each item
-    post.manage_through = [item.strip() for item in post.manage_through]
+# ==========================================
+# PUBLIC CANDIDATE ENDPOINTS
+# ==========================================
 
-    # print(post.manage_through)
+class PublicJobListView(generics.ListAPIView):
+    """
+    GET /api/jobs/
+    List and search published active jobs.
+    Supports search query (?search=), area (?area=), shift (?shift=),
+    job_type (?job_type=), min_education (?education=), experience (?experience=),
+    min_salary (?min_salary=), and sorting (?ordering=).
+    """
+    permission_classes = [AllowAny]
+    serializer_class = JobPostPublicListSerializer
+    pagination_class = StandardResultsPagination
 
-    # Parse min_education similarly
-    if isinstance(post.min_education, str):
-        post.min_education = post.min_education.strip("[]").replace("'", "").split(',')
-    post.min_education = [item.strip() for item in post.min_education]
-    print(post.min_education)
+    def get_queryset(self):
+        queryset = JobPost.objects.filter(status=JobPost.Status.ACTIVE).select_related('recruiter')
 
+        params = self.request.query_params
 
-    if isinstance(post.shifts, str):
-        post.shifts = post.shifts.strip("[]").replace("'", "").split(',')
-    post.shifts = [item.strip() for item in post.shifts]
-    # print(post.shifts)
+        # Free-text keyword search
+        search_query = params.get('search', '').strip()
+        if search_query:
+            words = search_query.split()
+            q_filter = Q()
+            for word in words:
+                q_filter |= (
+                    Q(title__icontains=word)
+                    | Q(company_name__icontains=word)
+                    | Q(description__icontains=word)
+                    | Q(area__icontains=word)
+                    | Q(village__icontains=word)
+                )
+            queryset = queryset.filter(q_filter)
 
-    if isinstance(post.facilities, str):
-        post.facilities = post.facilities.strip("[]").replace("'", "").split(',')
-    post.facilities = [item.strip() for item in post.facilities]
-    print(post.facilities)
-    # print(post.job_title)
-    # print(post.experience)
+        # Structured filters
+        area = params.get('area', '').strip()
+        if area and area.lower() != 'all':
+            queryset = queryset.filter(area__icontains=area)
 
-    title_words = post.job_title.split()
-    query = Q()
-    for word in set(title_words):
-        query |= Q(job_title__icontains=word)
-    related_jobs = Post.objects.filter(query).exclude(pk=post.pk)[:25]
+        job_type = params.get('job_type', '').strip()
+        if job_type and job_type.lower() != 'all':
+            queryset = queryset.filter(job_type=job_type)
 
-        # Check if any related jobs were found
-    if related_jobs.exists():
-        # If related jobs exist, use that queryset
-        related = related_jobs
-    else:
-        # If no related jobs are found, get all jobs instead
-        related = Post.objects.all().exclude(pk=post.pk)[:20]
+        shift = params.get('shift', '').strip()
+        if shift and shift.lower() != 'all':
+            queryset = queryset.filter(shift=shift)
 
-    # --- Clean fields for each related job ---
-    for job in related:
-        if isinstance(job.manage_through, str):
-            job.manage_through = job.manage_through.strip("[]").replace("'", "").split(',')
-        job.manage_through = [item.strip() for item in job.manage_through]
+        education = params.get('education', '').strip()
+        if education and education.lower() != 'all':
+            queryset = queryset.filter(min_education=education)
 
-        if isinstance(job.min_education, str):
-            job.min_education = job.min_education.strip("[]").replace("'", "").split(',')
-        job.min_education = [item.strip() for item in job.min_education]
+        experience = params.get('experience', '').strip()
+        if experience and experience.lower() != 'all':
+            queryset = queryset.filter(experience_required=experience)
 
-        if isinstance(job.shifts, str):
-            job.shifts = job.shifts.strip("[]").replace("'", "").split(',')
-        job.shifts = [item.strip() for item in job.shifts]
+        min_salary = params.get('min_salary', '').strip()
+        if min_salary and min_salary.isdigit():
+            queryset = queryset.filter(max_salary__gte=int(min_salary))
 
-        if isinstance(job.facilities, str):
-            job.facilities = job.facilities.strip("[]").replace("'", "").split(',')
-        job.facilities = [item.strip() for item in job.facilities]
-   
+        # Ordering
+        ordering = params.get('ordering', '-created_at')
+        valid_orderings = ['-created_at', 'created_at', 'min_salary', '-min_salary', 'title']
+        if ordering in valid_orderings:
+            queryset = queryset.order_by(ordering)
+        else:
+            queryset = queryset.order_by('-created_at')
 
-
-
-    #  # show all posts on 
-    # all_posts = Post.objects.all()
-    # for post in all_posts:
-    #     # Ensure manage_through is a list
-    #     if isinstance(post.manage_through, str):
-    #         post.manage_through = post.manage_through.strip("[]").replace("'", "").split(',')
-    #     # Strip any leading/trailing whitespace from each item
-    #     post.manage_through = [item.strip() for item in post.manage_through]
-
-    #     # minimum education
-    #     if isinstance(post.min_education, str):
-    #         post.min_education = post.min_education.strip("[]").replace("'", "").split(',')
-    #     post.min_education = [item.strip() for item in post.min_education]
-    #     # print(post.min_education)
-    #     # print(post.manage_through)
-
-    return render(request, 'job/post_detail.html', {'post': post,
-    'related_jobs': related})
+        return queryset
 
 
+class PublicJobDetailView(generics.RetrieveAPIView):
+    """
+    GET /api/jobs/{id}/
+    Retrieve full details for an active job post, including related job suggestions.
+    """
+    permission_classes = [AllowAny]
+    serializer_class = JobPostDetailSerializer
+    queryset = JobPost.objects.filter(status=JobPost.Status.ACTIVE).select_related('recruiter')
 
 
-# def job_search(request):
-#     title = request.GET.get('searchTitle', '')
-#     min_education = request.GET.get('minEducation', '')
-#     exp_query = request.GET.get('minExperience', '')
-#     shift = request.GET.get('shift', '')
-#     print(title,min_education,experience2,shift)
+class CandidateApplyView(APIView):
+    """
+    POST /api/jobs/{id}/apply/
+    Public endpoint for candidates to apply to a specific active job post.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request, pk, *args, **kwargs):
+        job_post = get_object_or_404(JobPost, pk=pk, status=JobPost.Status.ACTIVE)
+
+        serializer = CandidateApplicationSerializer(data=request.data)
+        if serializer.is_valid():
+            mobile_number = serializer.validated_data['mobile_number']
+
+            # Check if this mobile number already applied to this specific job recently (within 24 hours)
+            recent_threshold = timezone.now() - timedelta(hours=24)
+            duplicate_exists = Application.objects.filter(
+                job_post=job_post,
+                mobile_number=mobile_number,
+                submitted_at__gte=recent_threshold
+            ).exists()
+
+            if duplicate_exists:
+                return Response(
+                    {
+                        "success": False,
+                        "error": {
+                            "code": "DUPLICATE_APPLICATION",
+                            "message": "You have already submitted an application for this job within the last 24 hours.",
+                        },
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            application = serializer.save(job_post=job_post)
+
+            return Response(
+                {
+                    "success": True,
+                    "message": "Your application has been submitted successfully to the employer.",
+                    "application_id": application.id,
+                    "job_title": job_post.title,
+                    "company_name": job_post.company_name,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response(
+            {
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Please correct the application form errors.",
+                    "details": serializer.errors,
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
+class FilterChoicesView(APIView):
+    """
+    GET /api/jobs/filters/
+    Returns selectable options for areas, shifts, education, and job types.
+    """
+    permission_classes = [AllowAny]
 
-#     posts = Post.objects.filter(min_education__contains="graduation")
-#     post2 = Post.objects.filter(title__contains='title')
-#     post3 = Post.objects.filter(experience__icontains=exp_query)
+    def get(self, request, *args, **kwargs):
+        # Query distinct areas with active jobs
+        distinct_areas = (
+            JobPost.objects.filter(status=JobPost.Status.ACTIVE)
+            .values_list('area', flat=True)
+            .distinct()
+        )
+        areas = sorted(list(set(filter(None, distinct_areas))))
 
-#     posts = Post.objects.filter(job_title__icontains=title)
-#     for post in posts:
-#         print(post.experience)
-#         print(post.job_title)
-#     return render(request, 'job/search_job.html' )
+        # Fallback default prominent Chakan areas if database is sparse
+        default_areas = [
+            "Chakan MIDC Phase 1",
+            "Chakan MIDC Phase 2",
+            "Chakan MIDC Phase 3",
+            "Chakan MIDC Phase 4",
+            "Kuruli",
+            "Nanekarwadi",
+            "Mahalunge",
+            "Kharabwadi",
+            "Shinde Vasti",
+            "Sara City",
+            "Talegaon MIDC",
+        ]
+        combined_areas = sorted(list(set(default_areas + list(areas))))
 
-
-
-
-
-
-def job_search(request):
-    title = request.GET.get('searchTitle', '').strip()
-    min_education = request.GET.get('minEducation', '').strip()
-    exp_query = request.GET.get('minExperience', '').strip()
-    shift = request.GET.get('shift', '').strip()
-    print(title, min_education, exp_query, shift)
-    # Start with all posts
-    posts = Post.objects.all()
-
-
-    # Apply filters if values are provided
-    if title:
-        posts = posts.filter(job_title__icontains=title)
-
-    if min_education and min_education != 'any':
-        posts = posts.filter(min_education__contains=min_education)
-  
-    if exp_query and exp_query != 'any':
-        posts = posts.filter(experience__icontains=exp_query)
-
-    if shift and shift != 'any':
-        posts = posts.filter(shifts__icontains=shift)
-
-    # Debugging (prints to console)
-
-    # if isinstance(posts.min_education, str):
-    #     posts.min_education = posts.min_education.strip("[]").replace("'", "").split(',')
-    # posts.min_education = [item.strip() for item in posts.min_education]
-    for post in posts:
-        # print(f"Min Education: {post.min_education} {type(post.min_education)}")
-        if isinstance(post.min_education, str):
-            post.min_education = post.min_education.strip("[]").replace("'", "").split(',')
-        post.min_education = [item.strip() for item in post.min_education]
-        # print(post.min_education)
-        if isinstance(post.manage_through, str):
-            post.manage_through = post.manage_through.strip("[]").replace("'", "").split(',')
-        # Strip any leading/trailing whitespace from each item
-        post.manage_through = [item.strip() for item in post.manage_through]
-
-    
-
-    return render(request, 'job/search_job.html', {'posts': posts})
+        return Response({
+            "areas": combined_areas,
+            "job_types": [
+                {"value": choice.value, "label": choice.label}
+                for choice in JobPost.JobType
+            ],
+            "shifts": [
+                {"value": choice.value, "label": choice.label}
+                for choice in JobPost.ShiftType
+            ],
+            "education_levels": [
+                {"value": choice.value, "label": choice.label}
+                for choice in JobPost.EducationLevel
+            ],
+            "experience_levels": [
+                {"value": choice.value, "label": choice.label}
+                for choice in JobPost.ExperienceLevel
+            ],
+        })
 
 
+# ==========================================
+# RECRUITER MANAGEMENT ENDPOINTS
+# ==========================================
+
+class RecruiterJobListCreateView(generics.ListCreateAPIView):
+    """
+    GET /api/recruiter/jobs/
+    Lists all job postings created by the authenticated recruiter.
+
+    POST /api/recruiter/jobs/
+    Creates a new job posting under the recruiter's company.
+    """
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    pagination_class = StandardResultsPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return JobPostWriteSerializer
+        return JobPostPublicListSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return JobPost.objects.all().order_by('-created_at')
+        return JobPost.objects.filter(recruiter=self.request.user).order_by('-created_at')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            job = serializer.save()
+            return Response(
+                {
+                    "success": True,
+                    "message": "Job post published successfully.",
+                    "job": JobPostDetailSerializer(job, context={'request': request}).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid job posting data.",
+                    "details": serializer.errors,
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
-def apply_view(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+class RecruiterJobDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET /api/recruiter/jobs/{id}/
+    Retrieves full details for a recruiter's job post.
 
-    if request.method == 'POST':
-        full_name = request.POST.get('full_name', '').strip()
-        qualification = request.POST.get('qualification', '').strip()
-        age = request.POST.get('age', '').strip()
-        mobile_number = request.POST.get('mobile_number', '').strip()
-        current_address = request.POST.get('current_address', '').strip()
-        received_post_id = request.POST.get('post_id')
+    PUT/PATCH /api/recruiter/jobs/{id}/
+    Updates an authorized job post.
 
-        if str(post.id) != received_post_id:
-            messages.error(request, "Invalid post reference.")
-            return render(request, 'job/apply.html', {'post': post})
+    DELETE /api/recruiter/jobs/{id}/
+    Deletes an authorized job post.
+    """
+    permission_classes = [IsAuthenticated, IsRecruiter, IsJobOwner]
 
-        errors = []
-        if not full_name:
-            errors.append("Full Name is required.")
-        if not qualification:
-            errors.append("Qualification is required.")
-        if not age.isdigit():
-            errors.append("Valid Age is required.")
-        if not mobile_number:
-            errors.append("Mobile Number is required.")
-        if not current_address:
-            errors.append("Current Address is required.")
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return JobPostWriteSerializer
+        return JobPostDetailSerializer
 
-        if errors:
-            for err in errors:
-                messages.error(request, err)
-            return render(request, 'job/apply.html', {
-                'post': post,
-                'full_name': full_name,
-                'qualification': qualification,
-                'age': age,
-                'mobile_number': mobile_number,
-                'current_address': current_address,
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return JobPost.objects.all()
+        return JobPost.objects.filter(recruiter=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            job = serializer.save()
+            return Response(
+                {
+                    "success": True,
+                    "message": "Job post updated successfully.",
+                    "job": JobPostDetailSerializer(job, context={'request': request}).data,
+                }
+            )
+        return Response(
+            {
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid job update data.",
+                    "details": serializer.errors,
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(
+            {
+                "success": True,
+                "message": "Job post deleted successfully.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class RecruiterJobApplicantsView(generics.ListAPIView):
+    """
+    GET /api/recruiter/jobs/{id}/applicants/
+    Lists all candidate applications for a specific job post owned by the recruiter.
+    """
+    permission_classes = [IsAuthenticated, IsRecruiter]
+    serializer_class = RecruiterApplicantSerializer
+    pagination_class = StandardResultsPagination
+
+    def get_queryset(self):
+        job_id = self.kwargs.get('pk')
+        # Enforce that the recruiter owns this job post
+        if self.request.user.is_staff:
+            job = get_object_or_404(JobPost, pk=job_id)
+        else:
+            job = get_object_or_404(JobPost, pk=job_id, recruiter=self.request.user)
+
+        queryset = Application.objects.filter(job_post=job)
+
+        status_filter = self.request.query_params.get('status')
+        if status_filter and status_filter in Application.Status.values:
+            queryset = queryset.filter(status=status_filter)
+
+        return queryset.order_by('-submitted_at')
+
+
+class RecruiterApplicationStatusView(APIView):
+    """
+    PATCH /api/recruiter/applications/{id}/status/
+    Updates the candidate application status (Reviewing, Shortlisted, Rejected, Hired).
+    """
+    permission_classes = [IsAuthenticated, IsRecruiter, IsApplicationJobOwner]
+
+    def patch(self, request, pk, *args, **kwargs):
+        application = get_object_or_404(Application, pk=pk)
+        self.check_object_permissions(request, application)
+
+        serializer = ApplicationStatusUpdateSerializer(application, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "success": True,
+                "message": f"Application status updated to {application.get_status_display()}.",
+                "status": application.status,
             })
 
-        Applications.objects.create(
-            full_name=full_name,
-            qualification=qualification,
-            age=int(age),
-            mobile_number=mobile_number,
-            current_address=current_address,
-            post=post
+        return Response(
+            {
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Invalid status value.",
+                    "details": serializer.errors,
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
         )
-        messages.success(request, "Application submitted successfully!")
-        return redirect('application_success')
 
+
+class RecruiterDashboardSummaryView(APIView):
+    """
+    GET /api/recruiter/dashboard/summary/
+    Returns summary statistics for the recruiter's active jobs, total applications,
+    pending reviews, and the 5 most recent applicants.
+    """
+    permission_classes = [IsAuthenticated, IsRecruiter]
+
+    def get(self, request, *args, **kwargs):
+        recruiter = request.user
+        base_jobs = JobPost.objects.all() if recruiter.is_staff else JobPost.objects.filter(recruiter=recruiter)
+
+        total_jobs = base_jobs.count()
+        active_jobs = base_jobs.filter(status=JobPost.Status.ACTIVE).count()
+
+        recruiter_job_ids = base_jobs.values_list('id', flat=True)
+        all_applications = Application.objects.filter(job_post_id__in=recruiter_job_ids)
+
+        total_applications = all_applications.count()
+        pending_reviews = all_applications.filter(
+            status__in=[Application.Status.SUBMITTED, Application.Status.REVIEWING]
+        ).count()
+        shortlisted_count = all_applications.filter(status=Application.Status.SHORTLISTED).count()
+
+        recent_applications = all_applications.select_related('job_post').order_by('-submitted_at')[:5]
+
+        return Response({
+            "total_jobs": total_jobs,
+            "active_jobs": active_jobs,
+            "total_applications": total_applications,
+            "pending_reviews": pending_reviews,
+            "shortlisted_count": shortlisted_count,
+            "recent_applications": RecruiterApplicantSerializer(recent_applications, many=True).data,
+        })
+
+
+# Legacy views compatibility (returns templates or redirect during transition)
+def home(request):
+    return render(request, 'job/home.html', {'posts': JobPost.objects.filter(status=JobPost.Status.ACTIVE)})
+
+def post_detail(request, pk):
+    post = get_object_or_404(JobPost, pk=pk)
+    return render(request, 'job/post_detail.html', {'post': post, 'related_jobs': []})
+
+def job_search(request):
+    return render(request, 'job/search_job.html', {'posts': JobPost.objects.filter(status=JobPost.Status.ACTIVE)})
+
+def apply_view(request, post_id):
+    post = get_object_or_404(JobPost, pk=post_id)
     return render(request, 'job/apply.html', {'post': post})
 
 def application_success(request):
     return render(request, 'job/application_success.html')
-
-
-
-
-
-# @csrf_exempt
-# def save_fcm_token(request):
-#     """Receives and saves the FCM token from the client."""
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             token = data.get('token')
-#             if token:
-#                 FCMToken.objects.get_or_create(token=token)
-#                 return JsonResponse({"status": "success", "message": "Token saved."})
-#             return JsonResponse({"status": "error", "message": "No token provided."}, status=400)
-#         except json.JSONDecodeError:
-#             return JsonResponse({"status": "error", "message": "Invalid JSON."}, status=400)
-#     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
