@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from rest_framework.test import APIClient
+from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -29,3 +32,144 @@ class UserModelTests(TestCase):
             role=User.Role.RECRUITER
         )
         self.assertIn('Mahindra Supplier', str(user))
+
+
+class AuthAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.register_url = '/api/auth/register/'
+        self.login_url = '/api/auth/login/'
+        self.logout_url = '/api/auth/logout/'
+        self.me_url = '/api/auth/me/'
+
+        self.valid_payload = {
+            'username': 'tata_motors_hr',
+            'email': 'hr@tatamotors-chakan.com',
+            'password': 'TataPassword@123',
+            'confirm_password': 'TataPassword@123',
+            'full_name': 'Vikram Deshmukh',
+            'mobile_number': '9890123456',
+            'company_name': 'Tata Motors Chakan Plant',
+            'company_address': 'Sector 10, PCNTDA, Chakan, Pune',
+            'position': 'Head of Talent Acquisition',
+            'company_type': 'Automotive OEM',
+        }
+
+    def test_register_recruiter_success(self):
+        """Test successful recruiter registration returning a valid auth token."""
+        response = self.client.post(self.register_url, self.valid_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data['success'])
+        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user']['username'], 'tata_motors_hr')
+        self.assertEqual(response.data['user']['company_name'], 'Tata Motors Chakan Plant')
+        self.assertEqual(response.data['user']['role'], 'RECRUITER')
+
+        # Verify password is not in response
+        self.assertNotIn('password', response.data['user'])
+
+        # Verify token exists in database
+        user = User.objects.get(username='tata_motors_hr')
+        token = Token.objects.get(user=user)
+        self.assertEqual(token.key, response.data['token'])
+
+    def test_register_validation_password_mismatch(self):
+        payload = self.valid_payload.copy()
+        payload['confirm_password'] = 'DifferentPassword@123'
+        response = self.client.post(self.register_url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data['success'])
+        self.assertIn('confirm_password', response.data['error']['details'])
+
+    def test_register_validation_invalid_mobile(self):
+        payload = self.valid_payload.copy()
+        payload['mobile_number'] = '123'  # Too short
+        response = self.client.post(self.register_url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data['success'])
+        self.assertIn('mobile_number', response.data['error']['details'])
+
+    def test_register_duplicate_username_and_email(self):
+        # First registration
+        self.client.post(self.register_url, self.valid_payload, format='json')
+
+        # Duplicate username
+        dup_payload = self.valid_payload.copy()
+        dup_payload['email'] = 'other@test.com'
+        dup_payload['mobile_number'] = '9999999999'
+        response = self.client.post(self.register_url, dup_payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['error']['details'])
+
+    def test_login_success_with_username(self):
+        self.client.post(self.register_url, self.valid_payload, format='json')
+
+        login_data = {
+            'username_or_email': 'tata_motors_hr',
+            'password': 'TataPassword@123',
+        }
+        response = self.client.post(self.login_url, login_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user']['company_name'], 'Tata Motors Chakan Plant')
+
+    def test_login_success_with_email(self):
+        self.client.post(self.register_url, self.valid_payload, format='json')
+
+        login_data = {
+            'username_or_email': 'hr@tatamotors-chakan.com',
+            'password': 'TataPassword@123',
+        }
+        response = self.client.post(self.login_url, login_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+
+    def test_login_failure_wrong_password(self):
+        self.client.post(self.register_url, self.valid_payload, format='json')
+
+        login_data = {
+            'username_or_email': 'tata_motors_hr',
+            'password': 'WrongPassword@999',
+        }
+        response = self.client.post(self.login_url, login_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertFalse(response.data['success'])
+
+    def test_logout_revokes_token(self):
+        reg_resp = self.client.post(self.register_url, self.valid_payload, format='json')
+        token = reg_resp.data['token']
+
+        # Call logout with token in header
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+        logout_resp = self.client.post(self.logout_url)
+        self.assertEqual(logout_resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(logout_resp.data['success'])
+
+        # Verify token was destroyed in DB
+        self.assertFalse(Token.objects.filter(key=token).exists())
+
+        # Calling me now should fail with 401
+        me_resp = self.client.get(self.me_url)
+        self.assertEqual(me_resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_me_endpoint_retrieve_and_update(self):
+        reg_resp = self.client.post(self.register_url, self.valid_payload, format='json')
+        token = reg_resp.data['token']
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        # Retrieve profile
+        get_resp = self.client.get(self.me_url)
+        self.assertEqual(get_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(get_resp.data['user']['username'], 'tata_motors_hr')
+
+        # Update profile
+        patch_resp = self.client.patch(
+            self.me_url,
+            {'position': 'Senior VP of Operations', 'mobile_number': '9822334455'},
+            format='json'
+        )
+        self.assertEqual(patch_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(patch_resp.data['user']['position'], 'Senior VP of Operations')
+        self.assertEqual(patch_resp.data['user']['mobile_number'], '9822334455')
