@@ -131,6 +131,13 @@ export const RecruiterJobFormPage = () => {
           Publish your factory, CNC, inspection, or office vacancy to thousands of local Chakan job seekers.
         </p>
 
+        {user && !user.is_verified && (
+          <AlertBanner
+            type="warning"
+            message="Verification Pending: Your company account must be verified by the Portal Administrator before you can publish vacancies. Please wait for administrator approval."
+          />
+        )}
+
         {error && <AlertBanner type="error" message={error} details={validationErrors} />}
 
         <form onSubmit={handleSubmit}>
@@ -311,8 +318,19 @@ export const RecruiterJobFormPage = () => {
             />
           </div>
 
-          <Button type="submit" variant="primary" size="lg" isLoading={loading} style={{ width: '100%', marginTop: 'var(--space-4)' }}>
-            {isEditing ? 'Save Changes' : 'Publish Job Opening'}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            isLoading={loading}
+            disabled={user && !user.is_verified}
+            style={{ width: '100%', marginTop: 'var(--space-4)', opacity: user && !user.is_verified ? 0.6 : 1 }}
+          >
+            {user && !user.is_verified
+              ? 'Verification Pending by Admin'
+              : isEditing
+              ? 'Save Changes'
+              : 'Publish Job Opening'}
           </Button>
         </form>
       </div>

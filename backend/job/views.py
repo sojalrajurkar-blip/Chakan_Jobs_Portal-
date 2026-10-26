@@ -18,7 +18,7 @@ from .serializers import (
     RecruiterApplicantSerializer,
     ApplicationStatusUpdateSerializer,
 )
-from accounts.permissions import IsRecruiter, IsJobOwner, IsApplicationJobOwner
+from accounts.permissions import IsRecruiter, IsVerifiedRecruiter, IsJobOwner, IsApplicationJobOwner
 
 
 class StandardResultsPagination(PageNumberPagination):
@@ -233,10 +233,14 @@ class RecruiterJobListCreateView(generics.ListCreateAPIView):
     Lists all job postings created by the authenticated recruiter.
 
     POST /api/recruiter/jobs/
-    Creates a new job posting under the recruiter's company.
+    Creates a new job posting under the recruiter's company (verified recruiters only).
     """
-    permission_classes = [IsAuthenticated, IsRecruiter]
     pagination_class = StandardResultsPagination
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated(), IsVerifiedRecruiter()]
+        return [IsAuthenticated(), IsRecruiter()]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -284,7 +288,7 @@ class RecruiterJobDetailView(generics.RetrieveUpdateDestroyAPIView):
     DELETE /api/recruiter/jobs/{id}/
     Deletes an authorized job post.
     """
-    permission_classes = [IsAuthenticated, IsRecruiter, IsJobOwner]
+    permission_classes = [IsAuthenticated, IsVerifiedRecruiter, IsJobOwner]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
@@ -338,7 +342,7 @@ class RecruiterJobApplicantsView(generics.ListAPIView):
     GET /api/recruiter/jobs/{id}/applicants/
     Lists all candidate applications for a specific job post owned by the recruiter.
     """
-    permission_classes = [IsAuthenticated, IsRecruiter]
+    permission_classes = [IsAuthenticated, IsVerifiedRecruiter]
     serializer_class = RecruiterApplicantSerializer
     pagination_class = StandardResultsPagination
 
@@ -364,7 +368,7 @@ class RecruiterApplicationStatusView(APIView):
     PATCH /api/recruiter/applications/{id}/status/
     Updates the candidate application status (Reviewing, Shortlisted, Rejected, Hired).
     """
-    permission_classes = [IsAuthenticated, IsRecruiter, IsApplicationJobOwner]
+    permission_classes = [IsAuthenticated, IsVerifiedRecruiter, IsApplicationJobOwner]
 
     def patch(self, request, pk, *args, **kwargs):
         application = get_object_or_404(Application, pk=pk)

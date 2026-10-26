@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PlusCircle, Briefcase, Users, Clock, Trash2, Edit, ExternalLink, CheckCircle } from 'lucide-react';
+import { PlusCircle, Briefcase, Users, Clock, Trash2, Edit, ExternalLink, CheckCircle, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { recruiterService } from '../services/api';
 import { Button, Badge, Spinner, AlertBanner, EmptyState } from '../components/common/UIComponents';
@@ -62,19 +62,65 @@ export const RecruiterDashboardPage = () => {
   return (
     <div className="container" style={{ padding: 'var(--space-8) 0' }}>
       {/* Header bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', marginBottom: '4px' }}>Employer Dashboard</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: '4px' }}>
+            <h1 style={{ fontSize: '1.875rem', margin: 0 }}>Employer Dashboard</h1>
+            {user?.is_verified ? (
+              <Badge variant="success">Verified HR Account</Badge>
+            ) : (
+              <Badge variant="amber">Verification Pending</Badge>
+            )}
+          </div>
           <p style={{ color: 'var(--color-text-secondary)' }}>
             Welcome back, <strong>{user?.company_name || user?.username}</strong> ({user?.position || 'Recruiter'})
           </p>
         </div>
-        <Link to="/recruiter/jobs/new">
-          <Button variant="accent" size="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <PlusCircle size={18} /> Post New Vacancy
+
+        {user?.is_verified ? (
+          <Link to="/recruiter/jobs/new" style={{ textDecoration: 'none' }}>
+            <Button variant="accent" size="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PlusCircle size={18} /> Post New Vacancy
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            variant="secondary"
+            size="lg"
+            disabled
+            title="Your account is awaiting admin verification before you can post jobs"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}
+          >
+            <PlusCircle size={18} /> Post New Vacancy (Pending)
           </Button>
-        </Link>
+        )}
       </div>
+
+      {/* Verification Notice Banner if Unverified */}
+      {user && !user.is_verified && (
+        <div
+          style={{
+            backgroundColor: '#fef3c7',
+            border: '1px solid #f59e0b',
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-4) var(--space-6)',
+            marginBottom: 'var(--space-8)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-4)',
+          }}
+        >
+          <ShieldAlert size={32} color="#d97706" style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontWeight: 700, color: '#92400e', fontSize: '1rem', marginBottom: '2px' }}>
+              Account Verification Pending (खाते पडताळणी प्रलंबित आहे)
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#78350f' }}>
+              Your company account is under review by the Portal Administrator. Once verified in the Admin Panel, you will have full access to publish jobs and view applicant contacts.
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <AlertBanner type="error" message={error} />}
 

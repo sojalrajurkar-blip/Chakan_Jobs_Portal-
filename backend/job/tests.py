@@ -13,14 +13,15 @@ class JobCoreAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-        # Create two distinct recruiters to test isolation
+        # Create two distinct verified recruiters to test isolation
         self.recruiter_1 = User.objects.create_user(
             username='recruiter_bajaj',
             email='bajaj@chakanjobs.com',
             password='Password@123',
             role=User.Role.RECRUITER,
             company_name='Bajaj Auto Vendor',
-            mobile_number='9890011111'
+            mobile_number='9890011111',
+            is_verified=True
         )
         self.token_1 = Token.objects.create(user=self.recruiter_1)
 
@@ -30,9 +31,22 @@ class JobCoreAPITests(TestCase):
             password='Password@123',
             role=User.Role.RECRUITER,
             company_name='Mahindra Supplier',
-            mobile_number='9890022222'
+            mobile_number='9890022222',
+            is_verified=True
         )
         self.token_2 = Token.objects.create(user=self.recruiter_2)
+
+        # Create unverified recruiter to test verification gating
+        self.unverified_recruiter = User.objects.create_user(
+            username='recruiter_pending',
+            email='pending@chakanjobs.com',
+            password='Password@123',
+            role=User.Role.RECRUITER,
+            company_name='Pending Startup',
+            mobile_number='9890033333',
+            is_verified=False
+        )
+        self.token_unverified = Token.objects.create(user=self.unverified_recruiter)
 
         # Create sample job posts
         self.job_1 = JobPost.objects.create(
@@ -343,3 +357,19 @@ class JobCoreAPITests(TestCase):
         self.assertEqual(response.data['total_applications'], 1)
         self.assertEqual(response.data['pending_reviews'], 1)
         self.assertEqual(len(response.data['recent_applications']), 1)
+
+    def test_unverified_recruiter_blocked_from_posting_job_and_viewing_applicants(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token_unverified.key}')
+
+        # 1. Blocked from creating jobs
+        post_resp = self.client.post(
+            '/api/recruiter/jobs/',
+            {'title': 'Unverified Job', 'openings': 1, 'min_salary': 15000, 'max_salary': 20000},
+            format='json'
+        )
+        self.assertEqual(post_resp.status_code, status.HTTP_403_FORBIDDEN)
+
+        # 2. Blocked from viewing applicants
+        applicants_resp = self.client.get(f'/api/recruiter/jobs/{self.job_1.id}/applicants/')
+        self.assertEqual(applicants_resp.status_code, status.HTTP_403_FORBIDDEN)
+

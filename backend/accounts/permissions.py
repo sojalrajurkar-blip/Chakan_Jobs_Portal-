@@ -17,6 +17,21 @@ class IsRecruiter(permissions.BasePermission):
         )
 
 
+class IsVerifiedRecruiter(permissions.BasePermission):
+    """
+    Allows access only to VERIFIED recruiters or administrators.
+    Unverified recruiters are blocked from creating jobs, updating jobs, or viewing candidate data.
+    """
+    message = "Your recruiter account is pending administrator verification. You cannot post vacancies or view applicants until approved."
+
+    def has_permission(self, request, view):
+        if not (request.user and request.user.is_authenticated and request.user.is_active):
+            return False
+        if request.user.is_staff:
+            return True
+        return bool(request.user.role == User.Role.RECRUITER and request.user.is_verified)
+
+
 class IsJobOwner(permissions.BasePermission):
     """
     Object-level permission allowing only the recruiter who created the job post
