@@ -113,7 +113,7 @@ export const RecruiterDashboardPage = () => {
           <ShieldAlert size={32} color="#d97706" style={{ flexShrink: 0 }} />
           <div>
             <div style={{ fontWeight: 700, color: '#92400e', fontSize: '1rem', marginBottom: '2px' }}>
-              Account Verification Pending (खाते पडताळणी प्रलंबित आहे)
+              Account Verification Pending
             </div>
             <div style={{ fontSize: '0.875rem', color: '#78350f' }}>
               Your company account is under review by the Portal Administrator. Once verified in the Admin Panel, you will have full access to publish jobs and view applicant contacts.

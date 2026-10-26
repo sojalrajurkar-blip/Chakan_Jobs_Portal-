@@ -272,7 +272,7 @@ export const SiteHeader = () => {
               ) : (
                 <>
                   <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
-                    उमेदवार: <strong>{user?.full_name || user?.mobile_number}</strong>
+                    Candidate: <strong>{user?.full_name || user?.mobile_number}</strong>
                   </div>
                   <Link
                     to="/candidate/applications"
@@ -286,7 +286,7 @@ export const SiteHeader = () => {
                       color: 'var(--color-brand-ink)',
                     }}
                   >
-                    <Briefcase size={18} /> माझे अर्ज (My Applications)
+                    <Briefcase size={18} /> My Applications
                   </Link>
                 </>
               )}
@@ -299,12 +299,12 @@ export const SiteHeader = () => {
             <div style={{ borderTop: '1px solid var(--color-border-default)', paddingTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
               <Link to="/candidate/login" onClick={closeMobile} style={{ textDecoration: 'none' }}>
                 <Button variant="secondary" style={{ width: '100%' }}>
-                  उमेदवार लॉगिन (Candidate Login)
+                  Candidate Login
                 </Button>
               </Link>
               <Link to="/candidate/signup" onClick={closeMobile} style={{ textDecoration: 'none' }}>
                 <Button variant="primary" style={{ width: '100%' }}>
-                  मोफत नोंदणी (Sign Up Free)
+                  Sign Up Free
                 </Button>
               </Link>
             </div>

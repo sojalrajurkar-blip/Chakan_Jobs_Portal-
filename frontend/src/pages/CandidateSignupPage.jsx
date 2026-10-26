@@ -22,13 +22,13 @@ export const CandidateSignupPage = () => {
   const [validationErrors, setValidationErrors] = useState(null);
 
   const qualifications = [
-    { value: '10TH', label: '10वी पास (10th Pass)' },
-    { value: '12TH', label: '12वी पास (12th Pass)' },
+    { value: '10TH', label: '10th Pass' },
+    { value: '12TH', label: '12th Pass' },
     { value: 'ITI', label: 'ITI (Industrial Training)' },
-    { value: 'DIPLOMA', label: 'डिप्लोमा (Diploma)' },
-    { value: 'GRADUATION', label: 'पदवीधर / BE / B.Tech / Graduate' },
-    { value: 'POST_GRADUATION', label: 'पोस्ट ग्रॅज्युएट (Post Graduate)' },
-    { value: 'BELOW_10TH', label: '10वी च्या खाली (Below 10th)' },
+    { value: 'DIPLOMA', label: 'Diploma' },
+    { value: 'GRADUATION', label: 'Graduate / BE / B.Tech / Degree' },
+    { value: 'POST_GRADUATION', label: 'Post Graduate' },
+    { value: 'BELOW_10TH', label: 'Below 10th' },
   ];
 
   const handleChange = (e) => {
@@ -42,7 +42,7 @@ export const CandidateSignupPage = () => {
     setValidationErrors(null);
 
     if (formData.password !== formData.confirm_password) {
-      setError('पासवर्ड जुळत नाही. कृपया पासवर्ड तपासा. (Passwords do not match)');
+      setError('Passwords do not match. Please re-enter matching passwords.');
       setLoading(false);
       return;
     }
@@ -59,7 +59,7 @@ export const CandidateSignupPage = () => {
     if (res.success) {
       navigate('/jobs', { replace: true });
     } else {
-      setError(res.error?.message || 'नोंदणी अयशस्वी. कृपया दिलेली माहिती तपासा.');
+      setError(res.error?.message || 'Registration failed. Please check form entries and try again.');
       if (res.error?.details) {
         setValidationErrors(res.error.details);
       }
@@ -115,7 +115,7 @@ export const CandidateSignupPage = () => {
               fontFamily: 'var(--font-display)',
             }}
           >
-            उमेदवार मोफत नोंदणी
+            Candidate Free Registration
           </h1>
           <p
             style={{
@@ -124,13 +124,13 @@ export const CandidateSignupPage = () => {
               margin: 0,
             }}
           >
-            चाकण व तळेगाव एमआयडीसी मधील अग्रगण्य कंपन्यांमध्ये थेट अर्ज करा
+            Apply directly to verified employers across Chakan & Talegaon MIDC
           </p>
         </div>
 
         {error && (
           <div style={{ marginBottom: 'var(--space-5)' }}>
-            <AlertBanner variant="danger" title="नोंदणी त्रुटी" message={error} />
+            <AlertBanner variant="danger" title="Registration Error" message={error} />
           </div>
         )}
 
@@ -146,7 +146,7 @@ export const CandidateSignupPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              पूर्ण नाव (Full Name) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Full Name <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -155,7 +155,7 @@ export const CandidateSignupPage = () => {
                 type="text"
                 value={formData.full_name}
                 onChange={handleChange}
-                placeholder="उदा. राहुल तुकाराम शिंदे"
+                placeholder="e.g. Rahul Ramesh Shinde"
                 required
                 style={{
                   width: '100%',
@@ -195,7 +195,7 @@ export const CandidateSignupPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              १० अंकी मोबाईल नंबर (10-Digit Mobile Number) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              10-Digit Mobile Number <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -204,7 +204,7 @@ export const CandidateSignupPage = () => {
                 type="tel"
                 value={formData.mobile_number}
                 onChange={handleChange}
-                placeholder="उदा. 9876543210"
+                placeholder="e.g. 9876543210"
                 maxLength={10}
                 required
                 style={{
@@ -245,7 +245,7 @@ export const CandidateSignupPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              उच्चतम शिक्षण (Highest Qualification) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Highest Educational Qualification <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <select
@@ -293,7 +293,7 @@ export const CandidateSignupPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              सध्याचा पत्ता / गाव (Current Residence / Area) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Current Residence / Area in Chakan/Pune <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -302,7 +302,7 @@ export const CandidateSignupPage = () => {
                 type="text"
                 value={formData.current_address}
                 onChange={handleChange}
-                placeholder="उदा. चाकण, कुरूळी, नाणेकरवाडी, पुणे"
+                placeholder="e.g. Kuruli, Nanekarwadi, Chakan Phase 2"
                 required
                 style={{
                   width: '100%',
@@ -343,7 +343,7 @@ export const CandidateSignupPage = () => {
                   marginBottom: 'var(--space-2)',
                 }}
               >
-                पासवर्ड <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+                Password <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -352,7 +352,7 @@ export const CandidateSignupPage = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="किमान ८ अक्षरे"
+                  placeholder="At least 8 characters"
                   required
                   style={{
                     width: '100%',
@@ -387,7 +387,7 @@ export const CandidateSignupPage = () => {
                   marginBottom: 'var(--space-2)',
                 }}
               >
-                पुन्हा पासवर्ड <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+                Confirm Password <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -396,7 +396,7 @@ export const CandidateSignupPage = () => {
                   type="password"
                   value={formData.confirm_password}
                   onChange={handleChange}
-                  placeholder="तोच पासवर्ड पुन्हा टाका"
+                  placeholder="Re-enter password"
                   required
                   style={{
                     width: '100%',
@@ -437,7 +437,7 @@ export const CandidateSignupPage = () => {
             }}
           >
             <UserPlus size={18} />
-            {loading ? 'नोंदणी होत आहे...' : 'मोफत खाते तयार करा (Sign Up)'}
+            {loading ? 'Creating Account...' : 'Create Free Account'}
           </Button>
         </form>
 
@@ -451,7 +451,7 @@ export const CandidateSignupPage = () => {
           }}
         >
           <span style={{ color: 'var(--color-text-secondary)' }}>
-            आधीच खाते आहे का?{' '}
+            Already have an account?{' '}
           </span>
           <Link
             to="/candidate/login"
@@ -464,7 +464,7 @@ export const CandidateSignupPage = () => {
               gap: '4px',
             }}
           >
-            येथे लॉगिन करा <ArrowRight size={15} />
+            Sign in here <ArrowRight size={15} />
           </Link>
         </div>
       </div>

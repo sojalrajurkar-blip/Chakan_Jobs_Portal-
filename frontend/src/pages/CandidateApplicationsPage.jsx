@@ -8,11 +8,8 @@ import {
   IndianRupee,
   FileText,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   ExternalLink,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { candidateService } from '../services/api';
@@ -48,8 +45,8 @@ export const CandidateApplicationsPage = () => {
           setApplications(res.data.results || []);
         }
       })
-      .catch((err) => {
-        setError('तुमचे अर्ज लोड करण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा.');
+      .catch(() => {
+        setError('Failed to load your submitted applications. Please refresh and try again.');
       })
       .finally(() => setLoading(false));
   };
@@ -60,31 +57,31 @@ export const CandidateApplicationsPage = () => {
         return {
           bg: 'var(--color-status-info-bg)',
           color: 'var(--color-status-info)',
-          label: 'अर्ज पाठवला (Submitted)',
+          label: 'Submitted',
         };
       case 'REVIEWING':
         return {
           bg: 'var(--color-status-warning-bg)',
           color: 'var(--color-status-warning)',
-          label: 'तपासणी सुरू (In Review)',
+          label: 'In Review',
         };
       case 'SHORTLISTED':
         return {
           bg: '#ede9fe',
           color: '#6b21a8',
-          label: 'निवड झाली (Shortlisted)',
+          label: 'Shortlisted',
         };
       case 'HIRED':
         return {
           bg: 'var(--color-status-success-bg)',
           color: 'var(--color-status-success)',
-          label: 'नोकरी निश्चित (Hired)',
+          label: 'Hired',
         };
       case 'REJECTED':
         return {
           bg: 'var(--color-status-danger-bg)',
           color: 'var(--color-status-danger)',
-          label: 'अपात्र (Rejected)',
+          label: 'Rejected',
         };
       default:
         return {
@@ -100,7 +97,7 @@ export const CandidateApplicationsPage = () => {
       <div style={{ padding: 'var(--space-12) 0', textAlign: 'center' }}>
         <Spinner size="lg" />
         <p style={{ marginTop: 'var(--space-4)', color: 'var(--color-text-secondary)' }}>
-          तुमचे अर्ज लोड होत आहेत...
+          Loading your job applications...
         </p>
       </div>
     );
@@ -130,23 +127,23 @@ export const CandidateApplicationsPage = () => {
                 fontFamily: 'var(--font-display)',
               }}
             >
-              माझे नोकरी अर्ज (My Applications)
+              My Job Applications
             </h1>
             <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>
-              उमेदवार: <strong>{user?.full_name || user?.username}</strong> ({user?.mobile_number})
+              Candidate: <strong>{user?.full_name || user?.username}</strong> ({user?.mobile_number})
             </p>
           </div>
 
           <Link to="/jobs" style={{ textDecoration: 'none' }}>
             <Button variant="primary" size="md" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Briefcase size={18} /> आणखी नोकऱ्या शोधा (Browse Jobs)
+              <Briefcase size={18} /> Browse Vacancies
             </Button>
           </Link>
         </div>
 
         {error && (
           <div style={{ marginBottom: 'var(--space-6)' }}>
-            <AlertBanner variant="danger" title="त्रुटी" message={error} />
+            <AlertBanner variant="danger" title="Error" message={error} />
           </div>
         )}
 
@@ -178,26 +175,26 @@ export const CandidateApplicationsPage = () => {
               <Briefcase size={32} />
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 var(--space-2) 0', color: 'var(--color-brand-ink)' }}>
-              तुम्ही अद्याप कोणत्याही नोकरीसाठी अर्ज केलेला नाही
+              You haven't submitted any job applications yet
             </h3>
             <p style={{ color: 'var(--color-text-secondary)', maxWidth: '480px', margin: '0 auto var(--space-6) auto' }}>
-              चाकण, तळेगाव एमआयडीसी मधील विविध नामांकित कंपन्यांमध्ये ऑपरेटर, फिटर, वेल्डर, हेल्पर, ऑफिस इत्यादी पदांसाठी त्वरित अर्ज करा.
+              Explore active job openings across Chakan & Talegaon MIDC for operators, fitters, welders, supervisors, and office roles.
             </p>
             <Link to="/jobs" style={{ textDecoration: 'none' }}>
               <Button variant="primary" size="lg">
-                आताच रिक्त पदे पाहा (Explore Jobs)
+                Explore Available Jobs
               </Button>
             </Link>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>
-              एकूण अर्ज: {applications.length} (Total Applications)
+              Total Applications: {applications.length}
             </div>
 
             {applications.map((app) => {
               const badge = getStatusBadge(app.status, app.status_display);
-              const formattedDate = new Date(app.submitted_at).toLocaleDateString('mr-IN', {
+              const formattedDate = new Date(app.submitted_at).toLocaleDateString('en-IN', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
@@ -314,14 +311,14 @@ export const CandidateApplicationsPage = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <IndianRupee size={15} style={{ color: 'var(--color-text-muted)' }} />
                         <span>
-                          ₹{app.min_salary?.toLocaleString()} - ₹{app.max_salary?.toLocaleString()} / महिना
+                          ₹{app.min_salary?.toLocaleString()} - ₹{app.max_salary?.toLocaleString()} / month
                         </span>
                       </div>
                     )}
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Clock size={15} style={{ color: 'var(--color-text-muted)' }} />
-                      <span>अर्ज दिनांक: {formattedDate}</span>
+                      <span>Applied on: {formattedDate}</span>
                     </div>
                   </div>
 
@@ -336,7 +333,7 @@ export const CandidateApplicationsPage = () => {
                     }}
                   >
                     <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                      नोंदणीकृत तपशील: {app.full_name} ({app.mobile_number}) • {app.qualification}
+                      Application Details: {app.full_name} ({app.mobile_number}) • {app.qualification}
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -358,7 +355,7 @@ export const CandidateApplicationsPage = () => {
                             backgroundColor: 'var(--color-surface-sunken)',
                           }}
                         >
-                          <FileText size={14} /> रिझ्युमे पाहा (Resume)
+                          <FileText size={14} /> View Uploaded Resume
                         </a>
                       )}
                       <Link
@@ -373,7 +370,7 @@ export const CandidateApplicationsPage = () => {
                           gap: '4px',
                         }}
                       >
-                        तपशील पाहा <ChevronRight size={16} />
+                        View Job Details <ChevronRight size={16} />
                       </Link>
                     </div>
                   </div>

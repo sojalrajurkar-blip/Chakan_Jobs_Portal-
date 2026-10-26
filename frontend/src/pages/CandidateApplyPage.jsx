@@ -129,12 +129,12 @@ export const CandidateApplyPage = () => {
           <div style={{ display: 'inline-flex', padding: 'var(--space-4)', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-state-success-bg)', marginBottom: 'var(--space-4)' }}>
             <CheckCircle2 size={48} color="var(--color-state-success)" />
           </div>
-          <h2 style={{ marginBottom: 'var(--space-2)' }}>अर्ज यशस्वीरित्या सादर केला! (Application Submitted!)</h2>
+          <h2 style={{ marginBottom: 'var(--space-2)' }}>Application Submitted Successfully!</h2>
           <p style={{ marginBottom: 'var(--space-6)', color: 'var(--color-text-secondary)' }}>
             Your application for <strong>{job?.title}</strong> at <strong>{job?.company_name}</strong> has been directly forwarded to the employer.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', justifyContent: 'center' }}>
-            <Link to="/candidate/applications"><Button variant="primary">माझे सर्व अर्ज पाहा (My Applications)</Button></Link>
+            <Link to="/candidate/applications"><Button variant="primary">View My Applications</Button></Link>
             <Link to="/jobs"><Button variant="secondary">Browse More Jobs</Button></Link>
           </div>
         </div>
@@ -169,14 +169,14 @@ export const CandidateApplyPage = () => {
             }}
           >
             <span style={{ color: 'var(--color-brand-ink)' }}>
-              आधीच नोंदणी केली आहे का? जलद अर्जासाठी लॉगिन करा.
+              Already registered? Sign in to auto-fill your details.
             </span>
             <Link
               to="/candidate/login"
               state={{ from: { pathname: `/jobs/${id}/apply` } }}
               style={{ fontWeight: 700, color: 'var(--color-brand-ink)', textDecoration: 'underline' }}
             >
-              लॉगिन करा →
+              Sign In →
             </Link>
           </div>
         )}

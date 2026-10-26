@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Phone, Lock, LogIn, UserCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { Phone, Lock, LogIn, UserCheck, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner } from '../components/common/UIComponents';
 
@@ -29,7 +29,7 @@ export const CandidateLoginPage = () => {
     if (res.success) {
       navigate(from, { replace: true });
     } else {
-      setError(res.error?.message || 'अवैध मोबाईल नंबर किंवा पासवर्ड. कृपया पुन्हा तपासा. (Invalid credentials)');
+      setError(res.error?.message || 'Invalid mobile number or password. Please verify your credentials.');
       setLoading(false);
     }
   };
@@ -82,7 +82,7 @@ export const CandidateLoginPage = () => {
               fontFamily: 'var(--font-display)',
             }}
           >
-            उमेदवार लॉगिन
+            Candidate Sign In
           </h1>
           <p
             style={{
@@ -91,13 +91,13 @@ export const CandidateLoginPage = () => {
               margin: 0,
             }}
           >
-            चाकण एमआयडीसी मधील नोकरी अर्जांची स्थिती तपासण्यासाठी लॉगिन करा
+            Sign in to track your job applications across Chakan & Talegaon MIDC
           </p>
         </div>
 
         {error && (
           <div style={{ marginBottom: 'var(--space-5)' }}>
-            <AlertBanner variant="danger" title="लॉगिन अयशस्वी" message={error} />
+            <AlertBanner variant="danger" title="Login Failed" message={error} />
           </div>
         )}
 
@@ -113,7 +113,7 @@ export const CandidateLoginPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              मोबाईल नंबर किंवा युझरनेम (Mobile Number / Username) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Mobile Number or Username <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -121,7 +121,7 @@ export const CandidateLoginPage = () => {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="उदा. 9876543210"
+                placeholder="e.g. 9876543210"
                 required
                 autoFocus
                 style={{
@@ -157,7 +157,7 @@ export const CandidateLoginPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              पासवर्ड (Password) <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Password <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -165,7 +165,7 @@ export const CandidateLoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="आपला पासवर्ड प्रविष्ट करा"
+                placeholder="Enter your password"
                 required
                 style={{
                   width: '100%',
@@ -205,7 +205,7 @@ export const CandidateLoginPage = () => {
             }}
           >
             <LogIn size={18} />
-            {loading ? 'लॉगिन होत आहे...' : 'लॉगिन करा (Sign In)'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
 
@@ -219,7 +219,7 @@ export const CandidateLoginPage = () => {
           }}
         >
           <span style={{ color: 'var(--color-text-secondary)' }}>
-            नवीन उमेदवार आहात?{' '}
+            New job-seeker?{' '}
           </span>
           <Link
             to="/candidate/signup"
@@ -232,7 +232,7 @@ export const CandidateLoginPage = () => {
               gap: '4px',
             }}
           >
-            येथे मोफत नोंदणी करा <ArrowRight size={15} />
+            Create free account <ArrowRight size={15} />
           </Link>
         </div>
 
@@ -245,7 +245,7 @@ export const CandidateLoginPage = () => {
               textDecoration: 'none',
             }}
           >
-            ← थेट नोकऱ्या पाहा (Skip to Jobs)
+            ← Explore vacancies without logging in
           </Link>
         </div>
       </div>
