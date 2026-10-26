@@ -165,6 +165,8 @@ class JobPostWriteSerializer(serializers.ModelSerializer):
 
 
 class CandidateApplicationSerializer(serializers.ModelSerializer):
+    resume_file = serializers.FileField(required=False, allow_null=True)
+
     class Meta:
         model = Application
         fields = [
@@ -175,6 +177,7 @@ class CandidateApplicationSerializer(serializers.ModelSerializer):
             'course_name',
             'mobile_number',
             'current_address',
+            'resume_file',
             'submitted_at',
         ]
         read_only_fields = ['id', 'submitted_at']
@@ -210,11 +213,25 @@ class CandidateApplicationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Current address must be at least 5 characters.")
         return cleaned
 
+    def validate_resume_file(self, value):
+        if value:
+            max_size = 5 * 1024 * 1024  # 5MB
+            if value.size > max_size:
+                raise serializers.ValidationError("Resume file size cannot exceed 5 MB.")
+
+            import os
+            ext = os.path.splitext(value.name)[1].lower()
+            allowed = ['.pdf', '.doc', '.docx']
+            if ext not in allowed:
+                raise serializers.ValidationError("Only PDF, DOC, or DOCX documents are accepted.")
+        return value
+
 
 class RecruiterApplicantSerializer(serializers.ModelSerializer):
     job_id = serializers.IntegerField(source='job_post.id', read_only=True)
     job_title = serializers.CharField(source='job_post.title', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    resume_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Application
@@ -228,6 +245,8 @@ class RecruiterApplicantSerializer(serializers.ModelSerializer):
             'course_name',
             'mobile_number',
             'current_address',
+            'resume_file',
+            'resume_url',
             'status',
             'status_display',
             'submitted_at',
@@ -242,8 +261,19 @@ class RecruiterApplicantSerializer(serializers.ModelSerializer):
             'course_name',
             'mobile_number',
             'current_address',
+            'resume_file',
+            'resume_url',
+            'status_display',
             'submitted_at',
         ]
+
+    def get_resume_url(self, obj):
+        if obj.resume_file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.resume_file.url)
+            return obj.resume_file.url
+        return None
 
 
 class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):

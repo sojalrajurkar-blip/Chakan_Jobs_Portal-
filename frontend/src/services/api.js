@@ -48,7 +48,7 @@ export const jobService = {
   getJobs: (params) => api.get('/jobs/', { params }),
   getJobDetail: (id) => api.get(`/jobs/${id}/`),
   getFilters: () => api.get('/jobs/filters/'),
-  applyToJob: (id, payload) => api.post(`/jobs/${id}/apply/`, payload),
+  applyToJob: (id, payload, config = {}) => api.post(`/jobs/${id}/apply/`, payload, config),
 };
 
 export const recruiterService = {

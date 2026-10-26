@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -146,6 +147,86 @@ class JobCoreAPITests(TestCase):
         self.assertIn('full_name', response.data['error']['details'])
         self.assertIn('age', response.data['error']['details'])
         self.assertIn('mobile_number', response.data['error']['details'])
+
+    def test_candidate_apply_with_valid_resume_upload(self):
+        resume_file = SimpleUploadedFile(
+            'rahul_patil_cv.pdf',
+            b'%PDF-1.4 sample pdf content for resume',
+            content_type='application/pdf'
+        )
+        payload = {
+            'full_name': 'Rahul Patil',
+            'age': 24,
+            'qualification': 'Diploma Mechanical',
+            'course_name': 'Production Engineering',
+            'mobile_number': '9822334455',
+            'current_address': 'MIDC Phase 1, Chakan',
+            'resume_file': resume_file,
+        }
+        response = self.client.post(
+            f'/api/jobs/{self.job_1.id}/apply/',
+            payload,
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data['success'])
+
+        app = Application.objects.get(mobile_number='9822334455')
+        self.assertTrue(bool(app.resume_file))
+        self.assertIn('rahul_patil_cv', app.resume_file.name)
+
+        # Recruiter viewing applicant should receive resume_url
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token_1.key}')
+        recruiter_resp = self.client.get(f'/api/recruiter/jobs/{self.job_1.id}/applicants/')
+        self.assertEqual(recruiter_resp.status_code, status.HTTP_200_OK)
+        first_applicant = recruiter_resp.data['results'][0]
+        self.assertIsNotNone(first_applicant['resume_url'])
+        self.assertIn('rahul_patil_cv', first_applicant['resume_url'])
+
+    def test_candidate_apply_with_invalid_file_extension(self):
+        bad_file = SimpleUploadedFile(
+            'virus_script.exe',
+            b'MZ binary content',
+            content_type='application/octet-stream'
+        )
+        payload = {
+            'full_name': 'Test Candidate',
+            'age': 22,
+            'qualification': '12th Pass',
+            'mobile_number': '9833445566',
+            'current_address': 'Nanekarwadi, Chakan',
+            'resume_file': bad_file,
+        }
+        response = self.client.post(
+            f'/api/jobs/{self.job_1.id}/apply/',
+            payload,
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('resume_file', response.data['error']['details'])
+
+    def test_candidate_apply_with_oversized_file(self):
+        # 6MB file (exceeds 5MB limit)
+        oversized = SimpleUploadedFile(
+            'huge_portfolio.pdf',
+            b'x' * (6 * 1024 * 1024),
+            content_type='application/pdf'
+        )
+        payload = {
+            'full_name': 'Test Candidate 2',
+            'age': 25,
+            'qualification': 'BE Mechanical',
+            'mobile_number': '9844556677',
+            'current_address': 'Chakan Market Yard',
+            'resume_file': oversized,
+        }
+        response = self.client.post(
+            f'/api/jobs/{self.job_1.id}/apply/',
+            payload,
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('resume_file', response.data['error']['details'])
 
     # ----------------------------------------------------
     # Recruiter Job Management & Isolation Tests

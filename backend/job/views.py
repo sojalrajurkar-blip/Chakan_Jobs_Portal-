@@ -2,6 +2,7 @@ from rest_framework import status, generics, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, render
@@ -114,6 +115,7 @@ class CandidateApplyView(APIView):
     Public endpoint for candidates to apply to a specific active job post.
     """
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request, pk, *args, **kwargs):
         job_post = get_object_or_404(JobPost, pk=pk, status=JobPost.Status.ACTIVE)

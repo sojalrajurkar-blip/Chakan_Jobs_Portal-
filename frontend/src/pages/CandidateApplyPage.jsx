@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Upload, FileText, X } from 'lucide-react';
 import { jobService } from '../services/api';
 import { Button, AlertBanner, Spinner } from '../components/common/UIComponents';
 
@@ -13,6 +13,8 @@ export const CandidateApplyPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
+  const [fileError, setFileError] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -34,6 +36,39 @@ export const CandidateApplyPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFileError(null);
+    if (!file) {
+      setResumeFile(null);
+      return;
+    }
+
+    const allowedExtensions = ['.pdf', '.doc', '.docx'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedExtensions.includes(fileExt)) {
+      setFileError('Invalid file format. Please upload PDF, DOC, or DOCX documents.');
+      e.target.value = '';
+      setResumeFile(null);
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setFileError('File size exceeds 5 MB limit. Please upload a smaller file.');
+      e.target.value = '';
+      setResumeFile(null);
+      return;
+    }
+
+    setResumeFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setResumeFile(null);
+    setFileError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -41,11 +76,22 @@ export const CandidateApplyPage = () => {
     setValidationErrors(null);
 
     try {
-      const payload = {
-        ...formData,
-        age: parseInt(formData.age, 10),
-      };
-      const res = await jobService.applyToJob(id, payload);
+      const data = new FormData();
+      data.append('full_name', formData.full_name);
+      data.append('age', parseInt(formData.age, 10));
+      data.append('qualification', formData.qualification);
+      if (formData.course_name) {
+        data.append('course_name', formData.course_name);
+      }
+      data.append('mobile_number', formData.mobile_number);
+      data.append('current_address', formData.current_address);
+      if (resumeFile) {
+        data.append('resume_file', resumeFile);
+      }
+
+      const res = await jobService.applyToJob(id, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       if (res.data?.success) {
         setSuccess(true);
       }
@@ -177,6 +223,85 @@ export const CandidateApplyPage = () => {
               onChange={handleChange}
               className="form-textarea"
             />
+          </div>
+
+          {/* Resume Upload (Optional) */}
+          <div className="form-group">
+            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Upload Resume / Biodata (Optional)</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>PDF, DOC, DOCX (Max 5MB)</span>
+            </label>
+
+            {fileError && (
+              <div style={{ color: 'var(--color-state-error)', fontSize: '0.8125rem', marginBottom: 'var(--space-2)' }}>
+                {fileError}
+              </div>
+            )}
+
+            {!resumeFile ? (
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 'var(--space-6)',
+                  border: '2px dashed var(--color-border-default)',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--color-surface-subtle)',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-brand-purple)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-default)'; }}
+              >
+                <Upload size={28} color="var(--color-brand-purple)" style={{ marginBottom: 'var(--space-2)' }} />
+                <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-brand-ink)' }}>
+                  Click to select resume document
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                  Optional for factory workers. Helpful for diploma/supervisory roles.
+                </span>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 'var(--space-3) var(--space-4)',
+                  backgroundColor: 'var(--color-surface-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--color-state-success)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                  <FileText size={24} color="var(--color-brand-purple)" />
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-brand-ink)' }}>
+                      {resumeFile.name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      {(resumeFile.size / 1024).toFixed(1)} KB
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '4px' }}
+                  title="Remove file"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            )}
           </div>
 
           <Button type="submit" variant="primary" size="lg" isLoading={submitting} style={{ width: '100%', marginTop: 'var(--space-4)' }}>

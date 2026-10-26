@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Phone, Calendar, User, CheckCircle2, XCircle, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Phone, Calendar, User, CheckCircle2, XCircle, MessageCircle, Download, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { recruiterService } from '../services/api';
 import { Button, Badge, Spinner, AlertBanner, EmptyState } from '../components/common/UIComponents';
@@ -162,6 +162,36 @@ export const RecruiterApplicantsPage = () => {
                     <Calendar size={14} />
                     {new Date(app.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>RESUME / BIODATA</div>
+                  {app.resume_url ? (
+                    <a
+                      href={app.resume_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        color: 'var(--color-brand-purple)',
+                        textDecoration: 'none',
+                        padding: '4px 10px',
+                        backgroundColor: 'var(--color-surface-card)',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--color-border-default)',
+                      }}
+                    >
+                      <Download size={14} /> View / Download
+                    </a>
+                  ) : (
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                      Not attached (Direct entry)
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
