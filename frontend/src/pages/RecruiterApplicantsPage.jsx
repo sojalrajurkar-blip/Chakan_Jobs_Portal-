@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Phone, Calendar, User, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Phone, Calendar, User, CheckCircle2, XCircle, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { recruiterService } from '../services/api';
 import { Button, Badge, Spinner, AlertBanner, EmptyState } from '../components/common/UIComponents';
@@ -128,13 +128,25 @@ export const RecruiterApplicantsPage = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--space-4)', padding: 'var(--space-4)', backgroundColor: 'var(--color-surface-subtle)', borderRadius: 'var(--radius-md)' }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>CONTACT CANDIDATE</div>
-                  <a
-                    href={`tel:${app.mobile_number}`}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--color-brand-ink)', fontSize: '1.0625rem' }}
-                  >
-                    <Phone size={16} color="var(--color-state-success)" />
-                    {app.mobile_number}
-                  </a>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                    <a
+                      href={`tel:${app.mobile_number}`}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--color-brand-ink)', fontSize: '1rem', textDecoration: 'none' }}
+                      title="Call candidate"
+                    >
+                      <Phone size={16} color="var(--color-state-success)" />
+                      {app.mobile_number}
+                    </a>
+                    <a
+                      href={`https://wa.me/91${app.mobile_number.replace(/^0+/, '')}?text=${encodeURIComponent(`Hello ${app.full_name}, regarding your application for "${job?.title}" at ${job?.company_name} on Chakan Jobs:`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', fontWeight: 600, color: '#16a34a', textDecoration: 'none' }}
+                      title="Message on WhatsApp"
+                    >
+                      <MessageCircle size={15} /> WhatsApp
+                    </a>
+                  </div>
                 </div>
 
                 <div>

@@ -74,8 +74,14 @@ export const RecruiterJobFormPage = () => {
         })
         .catch(() => setError('Failed to load job post details.'))
         .finally(() => setFetching(false));
+    } else if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        calling_number: user.mobile_number || prev.calling_number,
+        whatsapp_number: user.mobile_number || prev.whatsapp_number,
+      }));
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, user]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;

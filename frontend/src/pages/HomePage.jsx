@@ -111,6 +111,33 @@ export const HomePage = () => {
                 Search Jobs
               </Button>
             </form>
+
+            {/* Quick Area Tags */}
+            <div style={{ marginTop: 'var(--space-4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>Popular Areas:</span>
+              {['MIDC Phase 1', 'MIDC Phase 2', 'MIDC Phase 3', 'Nanekarwadi', 'Kuruli', 'Chakan-Talegaon Rd'].map((areaName) => (
+                <button
+                  key={areaName}
+                  type="button"
+                  onClick={() => navigate(`/jobs?area=${encodeURIComponent(areaName)}`)}
+                  style={{
+                    backgroundColor: 'var(--color-surface-card)',
+                    border: '1px solid var(--color-border-default)',
+                    borderRadius: 'var(--radius-pill)',
+                    padding: '3px 10px',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    color: 'var(--color-brand-ink)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-brand-purple)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-default)'; }}
+                >
+                  {areaName}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>

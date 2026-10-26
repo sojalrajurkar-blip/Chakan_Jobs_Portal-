@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { HomePage } from './pages/HomePage';
 import { JobSearchPage } from './pages/JobSearchPage';
 import { JobDetailPage } from './pages/JobDetailPage';
@@ -17,16 +18,51 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppShell />}>
+          {/* Public Visitor & Candidate Routes */}
           <Route index element={<HomePage />} />
           <Route path="jobs" element={<JobSearchPage />} />
           <Route path="jobs/:id" element={<JobDetailPage />} />
           <Route path="jobs/:id/apply" element={<CandidateApplyPage />} />
+
+          {/* Employer Authentication Routes */}
           <Route path="recruiter/login" element={<RecruiterLoginPage />} />
           <Route path="recruiter/signup" element={<RecruiterSignupPage />} />
-          <Route path="recruiter/dashboard" element={<RecruiterDashboardPage />} />
-          <Route path="recruiter/jobs/new" element={<RecruiterJobFormPage />} />
-          <Route path="recruiter/jobs/:id/edit" element={<RecruiterJobFormPage />} />
-          <Route path="recruiter/jobs/:id/applicants" element={<RecruiterApplicantsPage />} />
+
+          {/* Protected Employer Management Routes */}
+          <Route
+            path="recruiter/dashboard"
+            element={
+              <ProtectedRoute>
+                <RecruiterDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="recruiter/jobs/new"
+            element={
+              <ProtectedRoute>
+                <RecruiterJobFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="recruiter/jobs/:id/edit"
+            element={
+              <ProtectedRoute>
+                <RecruiterJobFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="recruiter/jobs/:id/applicants"
+            element={
+              <ProtectedRoute>
+                <RecruiterApplicantsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
