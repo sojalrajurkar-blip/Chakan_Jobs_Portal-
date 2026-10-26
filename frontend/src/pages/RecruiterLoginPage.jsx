@@ -75,6 +75,30 @@ export const RecruiterLoginPage = () => {
             Register Your Company
           </Link>
         </div>
+
+        <div
+          style={{
+            marginTop: 'var(--space-4)',
+            padding: 'var(--space-3)',
+            backgroundColor: 'var(--color-surface-sunken)',
+            borderRadius: 'var(--radius-md)',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            border: '1px solid var(--color-border-subtle)',
+          }}
+        >
+          <span style={{ color: 'var(--color-text-secondary)' }}>Looking for a job? </span>
+          <Link
+            to="/candidate/login"
+            style={{
+              color: 'var(--color-brand-ink)',
+              fontWeight: 700,
+              textDecoration: 'underline',
+            }}
+          >
+            Candidate Sign In →
+          </Link>
+        </div>
       </div>
     </div>
   );

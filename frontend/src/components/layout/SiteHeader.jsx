@@ -191,6 +191,24 @@ export const SiteHeader = () => {
                   <User size={15} /> Sign Up
                 </Button>
               </Link>
+              <span style={{ color: 'var(--color-border-default)', margin: '0 var(--space-1)' }}>|</span>
+              <Link
+                to="/recruiter/login"
+                style={{
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  color: 'var(--color-text-secondary)',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '6px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  backgroundColor: 'var(--color-surface-sunken)',
+                }}
+              >
+                <Building2 size={15} /> Employer / HR Login
+              </Link>
             </div>
           )}
         </nav>
@@ -306,6 +324,27 @@ export const SiteHeader = () => {
                 <Button variant="primary" style={{ width: '100%' }}>
                   Sign Up Free
                 </Button>
+              </Link>
+              <Link
+                to="/recruiter/login"
+                onClick={closeMobile}
+                style={{
+                  textAlign: 'center',
+                  padding: 'var(--space-3)',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'var(--color-brand-ink)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  textDecoration: 'none',
+                  backgroundColor: 'var(--color-surface-sunken)',
+                  borderRadius: 'var(--radius-md)',
+                  marginTop: 'var(--space-1)',
+                }}
+              >
+                <Building2 size={16} /> Employer / HR Sign In →
               </Link>
             </div>
           )}

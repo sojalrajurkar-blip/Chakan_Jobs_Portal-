@@ -248,6 +248,30 @@ export const CandidateLoginPage = () => {
             ← Explore vacancies without logging in
           </Link>
         </div>
+
+        <div
+          style={{
+            marginTop: 'var(--space-5)',
+            padding: 'var(--space-3) var(--space-4)',
+            backgroundColor: 'var(--color-surface-sunken)',
+            borderRadius: 'var(--radius-md)',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            border: '1px solid var(--color-border-subtle)',
+          }}
+        >
+          <span style={{ color: 'var(--color-text-secondary)' }}>Are you an Employer / HR? </span>
+          <Link
+            to="/recruiter/login"
+            style={{
+              color: 'var(--color-brand-ink)',
+              fontWeight: 700,
+              textDecoration: 'underline',
+            }}
+          >
+            Employer Sign In →
+          </Link>
+        </div>
       </div>
     </div>
   );
