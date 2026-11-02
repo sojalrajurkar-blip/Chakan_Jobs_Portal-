@@ -157,6 +157,10 @@ CORS_ALLOWED_ORIGINS = [
     ).split(',')
     if origin.strip()
 ]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.vercel\.app$",
+    r"^https:\/\/.*\.onrender\.com$",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF Trusted Origins for Render & Production Domains
