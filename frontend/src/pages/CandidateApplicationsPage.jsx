@@ -1,27 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Briefcase,
   Building2,
   MapPin,
-  Calendar,
   IndianRupee,
   FileText,
   Clock,
   ExternalLink,
   ChevronRight,
+  Upload,
 } from 'lucide-react';
+
 import { useAuth } from '../context/AuthContext';
 import { candidateService } from '../services/api';
 import { Button, Spinner, AlertBanner } from '../components/common/UIComponents';
+import { animateStaggerCards } from '../utils/gsapAnimations';
 
 export const CandidateApplicationsPage = () => {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeSuccessMsg, setResumeSuccessMsg] = useState(null);
+  const appsRef = useRef(null);
+  const resumeInputRef = useRef(null);
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ['.pdf', '.doc', '.docx'];
+    const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowed.includes(ext)) {
+      alert('Please select a PDF, DOC, or DOCX document.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Resume file size must be less than 5 MB.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('resume', file);
+    setUploadingResume(true);
+    setResumeSuccessMsg(null);
+
+    try {
+      const res = await candidateService.updateProfile(formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data?.success && res.data.user) {
+        updateUser(res.data.user);
+        setResumeSuccessMsg('Your default resume has been updated! 1-Click Apply is active.');
+        setTimeout(() => setResumeSuccessMsg(null), 5000);
+      }
+    } catch {
+      alert('Failed to update resume. Please try again.');
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
+  // GSAP animation for applications list
+  useEffect(() => {
+    if (applications.length > 0 && appsRef.current) {
+      animateStaggerCards('.app-card', appsRef);
+    }
+  }, [applications]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -36,6 +86,7 @@ export const CandidateApplicationsPage = () => {
       fetchApplications();
     }
   }, [isAuthenticated, authLoading, navigate]);
+
 
   const fetchApplications = () => {
     setLoading(true);
@@ -141,6 +192,105 @@ export const CandidateApplicationsPage = () => {
           </Link>
         </div>
 
+        {resumeSuccessMsg && (
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <AlertBanner variant="success" title="Resume Saved" message={resumeSuccessMsg} />
+          </div>
+        )}
+
+        {/* Stored Profile Resume Manager */}
+        <div
+          className="card"
+          style={{
+            padding: 'var(--space-5) var(--space-6)',
+            marginBottom: 'var(--space-8)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border-default)',
+            background: 'linear-gradient(to right, #FFFFFF, var(--color-surface-subtle))',
+            boxShadow: 'var(--shadow-subtle)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-4)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <div
+              style={{
+                width: '50px',
+                height: '50px',
+                borderRadius: '12px',
+                backgroundColor: user?.resume_url ? '#EAF6EF' : 'var(--color-surface-subtle)',
+                color: user?.resume_url ? '#237A52' : 'var(--color-text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <FileText size={26} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 700, color: 'var(--color-brand-ink)', fontSize: '1.0625rem' }}>
+                  Default Stored Resume
+                </span>
+                {user?.resume_url ? (
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, background: '#EAF6EF', color: '#237A52', border: '1px solid #A6E2BE', padding: '2px 8px', borderRadius: '999px' }}>
+                    ⚡ 1-Click Fast Apply Enabled
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, background: '#FFF5D9', color: '#8A5A00', padding: '2px 8px', borderRadius: '999px' }}>
+                    No Resume Stored
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                {user?.resume_url ? (
+                  <>
+                    Stored file: <strong>{user.resume_name || 'My_Resume.pdf'}</strong> — Auto-fills when you apply to any factory job.
+                  </>
+                ) : (
+                  'Upload your biodata / resume once to enable instant 1-click applications across all factory jobs.'
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {user?.resume_url && (
+              <a
+                href={user.resume_url}
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                <Button variant="outline" size="sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ExternalLink size={14} /> View
+                </Button>
+              </a>
+            )}
+
+            <input
+              type="file"
+              ref={resumeInputRef}
+              onChange={handleResumeUpload}
+              accept=".pdf,.doc,.docx"
+              style={{ display: 'none' }}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={uploadingResume}
+              onClick={() => resumeInputRef.current?.click()}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Upload size={14} /> {uploadingResume ? 'Saving...' : user?.resume_url ? 'Replace Resume' : 'Upload Resume'}
+            </Button>
+          </div>
+        </div>
+
         {error && (
           <div style={{ marginBottom: 'var(--space-6)' }}>
             <AlertBanner variant="danger" title="Error" message={error} />
@@ -187,7 +337,7 @@ export const CandidateApplicationsPage = () => {
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div ref={appsRef} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>
               Total Applications: {applications.length}
             </div>
@@ -205,7 +355,7 @@ export const CandidateApplicationsPage = () => {
               return (
                 <div
                   key={app.id}
-                  className="card"
+                  className="card app-card"
                   style={{
                     padding: 'var(--space-5)',
                     backgroundColor: 'var(--color-surface-card)',
@@ -215,6 +365,7 @@ export const CandidateApplicationsPage = () => {
                     transition: 'transform 0.2s, box-shadow 0.2s',
                   }}
                 >
+
                   <div
                     style={{
                       display: 'flex',
@@ -225,39 +376,76 @@ export const CandidateApplicationsPage = () => {
                       marginBottom: 'var(--space-3)',
                     }}
                   >
-                    <div>
-                      <Link
-                        to={`/jobs/${app.job_id}`}
-                        style={{
-                          textDecoration: 'none',
-                          color: 'var(--color-brand-ink)',
-                        }}
-                      >
-                        <h3
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                      {app.company_logo_url ? (
+                        <img
+                          src={app.company_logo_url}
+                          alt={app.company_name || 'Company'}
                           style={{
-                            fontSize: '1.2rem',
-                            fontWeight: 700,
-                            margin: '0 0 var(--space-1) 0',
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '10px',
+                            objectFit: 'contain',
+                            background: '#FFFFFF',
+                            padding: '3px',
+                            border: '1px solid var(--color-border-default)',
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, var(--color-brand-ink), #1d1768)',
+                            color: 'var(--color-brand-gold)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '0.9375rem',
+                            flexShrink: 0,
                           }}
                         >
-                          {app.job_title}
-                          <ExternalLink size={16} style={{ color: 'var(--color-text-muted)' }} />
-                        </h3>
-                      </Link>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          color: 'var(--color-text-secondary)',
-                          fontSize: '0.9375rem',
-                          fontWeight: 500,
-                        }}
-                      >
-                        <Building2 size={16} /> {app.company_name}
+                          {(app.company_name || 'CJ').substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+
+                      <div>
+                        <Link
+                          to={`/jobs/${app.job_id}`}
+                          style={{
+                            textDecoration: 'none',
+                            color: 'var(--color-brand-ink)',
+                          }}
+                        >
+                          <h3
+                            style={{
+                              fontSize: '1.2rem',
+                              fontWeight: 700,
+                              margin: '0 0 var(--space-1) 0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                            }}
+                          >
+                            {app.job_title}
+                            <ExternalLink size={16} style={{ color: 'var(--color-text-muted)' }} />
+                          </h3>
+                        </Link>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            color: 'var(--color-text-secondary)',
+                            fontSize: '0.9375rem',
+                            fontWeight: 500,
+                          }}
+                        >
+                          <Building2 size={16} /> {app.company_name}
+                        </div>
                       </div>
                     </div>
 

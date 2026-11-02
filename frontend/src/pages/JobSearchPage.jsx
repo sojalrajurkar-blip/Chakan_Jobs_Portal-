@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, X, MapPin, IndianRupee, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { jobService } from '../services/api';
 import { JobCard } from '../components/jobs/JobCard';
 import { Button, Spinner, AlertBanner, EmptyState, Badge } from '../components/common/UIComponents';
+import { animateStaggerCards, animateFadeInUp } from '../utils/gsapAnimations';
 
 export const JobSearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,6 +16,8 @@ export const JobSearchPage = () => {
   const [error, setError] = useState(null);
   const [filtersData, setFiltersData] = useState(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const resultsRef = useRef(null);
+  const sidebarRef = useRef(null);
 
   // Filter state values from URL params
   const currentSearch = searchParams.get('search') || '';
@@ -52,6 +55,14 @@ export const JobSearchPage = () => {
       })
       .finally(() => setLoading(false));
   }, [searchParams]);
+
+  // Animate results whenever jobs load or update
+  useEffect(() => {
+    if (!loading && jobs.length > 0 && resultsRef.current) {
+      animateStaggerCards('.search-job-item', resultsRef);
+    }
+  }, [loading, jobs]);
+
 
   const updateParam = (key, value) => {
     const newParams = new URLSearchParams(searchParams);
@@ -99,11 +110,17 @@ export const JobSearchPage = () => {
     <div className="container" style={{ padding: 'var(--space-8) 0 var(--space-16)' }}>
       {/* Header & Search Bar */}
       <div style={{ marginBottom: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span className="pulse-dot" />
+          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#15803d', letterSpacing: '0.04em' }}>
+            DIRECT FACTORY HIRING • 0% COMMISSION • VERIFIED HR CONTACT
+          </span>
+        </div>
         <h1 style={{ fontSize: '1.875rem', marginBottom: 'var(--space-2)' }}>
-          Manufacturing & Industrial Jobs in Chakan
+          Manufacturing & Industrial Vacancies in Chakan & Talegaon MIDC
         </h1>
         <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-4)' }}>
-          Browse verified plant vacancies, CNC operator jobs, ITI openings, and factory positions in Pune.
+          Browse verified plant openings for CNC/VMC operators, ITI fitters, welders, helpers, and quality inspectors.
         </p>
 
         {/* Global Search Bar */}
@@ -316,10 +333,13 @@ export const JobSearchPage = () => {
               onAction={clearAllFilters}
             />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div ref={resultsRef} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               {jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <div key={job.id} className="search-job-item">
+                  <JobCard job={job} />
+                </div>
               ))}
+
 
               {/* Pagination bar */}
               {(hasNext || hasPrev) && (

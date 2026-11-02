@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { recruiterService, jobService } from '../services/api';
 import { Button, AlertBanner, Spinner } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const RecruiterJobFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const isEditing = Boolean(id);
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    animateFadeInUp(cardRef, { y: 25, duration: 0.55 });
+  }, []);
+
 
   const [formData, setFormData] = useState({
     title: '',
@@ -123,7 +130,7 @@ export const RecruiterJobFormPage = () => {
         <ArrowLeft size={16} /> Back to Recruiter Dashboard
       </Link>
 
-      <div className="card" style={{ padding: 'var(--space-8)' }}>
+      <div ref={cardRef} className="card" style={{ padding: 'var(--space-8)' }}>
         <h1 style={{ fontSize: '1.75rem', marginBottom: 'var(--space-2)' }}>
           {isEditing ? 'Edit Job Posting' : 'Post a New Job Vacancy'}
         </h1>

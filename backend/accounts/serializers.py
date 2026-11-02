@@ -37,11 +37,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'company_address',
             'position',
             'company_type',
+            'company_logo',
         ]
         extra_kwargs = {
             'email': {'required': True},
             'company_name': {'required': True},
             'mobile_number': {'required': True},
+            'company_logo': {'required': False},
         }
 
     def validate_mobile_number(self, value):
@@ -133,9 +135,11 @@ class CandidateRegistrationSerializer(serializers.ModelSerializer):
             'mobile_number',
             'qualification',
             'current_address',
+            'resume',
         ]
         extra_kwargs = {
             'mobile_number': {'required': True},
+            'resume': {'required': False},
         }
 
     def validate_mobile_number(self, value):
@@ -222,12 +226,29 @@ class UserLoginSerializer(serializers.Serializer):
         if cleaned_id.startswith('+91'):
             cleaned_id = cleaned_id[3:]
 
-        user_obj = User.objects.filter(
-            Q(username__iexact=identifier) |
-            Q(email__iexact=identifier) |
-            Q(mobile_number=cleaned_id) |
-            Q(mobile_number=identifier)
-        ).first()
+        user_obj = None
+        # Fast path for 10-digit candidate mobile numbers
+        if cleaned_id.isdigit() and len(cleaned_id) == 10:
+            user_obj = User.objects.filter(mobile_number=cleaned_id).first()
+
+        # Fallback to username or email match
+        if not user_obj:
+            user_obj = User.objects.filter(
+                Q(username__iexact=identifier) |
+                Q(email__iexact=identifier) |
+                Q(mobile_number=cleaned_id)
+            ).first()
+
+        # Candidate name fallback (e.g. candidate types "Tejas" or first name instead of mobile number)
+        if not user_obj:
+            candidate_candidates = User.objects.filter(
+                Q(first_name__iexact=identifier) |
+                Q(username__iexact=f"cand_{cleaned_id}")
+            )
+            for cand in candidate_candidates:
+                if cand.check_password(password):
+                    user_obj = cand
+                    break
 
         if not user_obj:
             raise serializers.ValidationError("Invalid credentials. Please verify your details.")
@@ -246,6 +267,9 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    company_logo_url = serializers.SerializerMethodField()
+    resume_url = serializers.SerializerMethodField()
+    resume_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -264,6 +288,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'company_address',
             'position',
             'company_type',
+            'company_logo',
+            'company_logo_url',
+            'resume',
+            'resume_url',
+            'resume_name',
             'is_verified',
             'created_at',
         ]
@@ -272,3 +301,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         name = f"{obj.first_name} {obj.last_name}".strip()
         return name or obj.username
+
+    def get_company_logo_url(self, obj):
+        if obj.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.company_logo.url)
+            return obj.company_logo.url
+        return None
+
+    def get_resume_url(self, obj):
+        if obj.resume:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.resume.url)
+            return obj.resume.url
+        return None
+
+    def get_resume_name(self, obj):
+        if obj.resume:
+            import os
+            return os.path.basename(obj.resume.name)
+        return None

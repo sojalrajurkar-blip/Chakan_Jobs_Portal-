@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Phone, MapPin, GraduationCap, Lock, ArrowRight, UserPlus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { User, Phone, MapPin, GraduationCap, Lock, ArrowRight, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const CandidateSignupPage = () => {
   const { registerCandidate } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const cardRef = useRef(null);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -16,6 +19,14 @@ export const CandidateSignupPage = () => {
     password: '',
     confirm_password: '',
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    animateFadeInUp(cardRef, { y: 30, duration: 0.6 });
+  }, []);
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,7 +68,8 @@ export const CandidateSignupPage = () => {
     });
 
     if (res.success) {
-      navigate('/jobs', { replace: true });
+      const from = location.state?.from?.pathname || '/jobs';
+      navigate(from, { replace: true });
     } else {
       setError(res.error?.message || 'Registration failed. Please check form entries and try again.');
       if (res.error?.details) {
@@ -79,8 +91,10 @@ export const CandidateSignupPage = () => {
       }}
     >
       <div
+        ref={cardRef}
         className="card"
         style={{
+
           width: '100%',
           maxWidth: '520px',
           boxShadow: 'var(--shadow-card)',
@@ -349,14 +363,14 @@ export const CandidateSignupPage = () => {
                 <input
                   id="candidate-pw"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="At least 8 characters"
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 10px 12px 36px',
+                    padding: '12px 34px 12px 36px',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border-default)',
                     fontSize: '0.875rem',
@@ -371,8 +385,31 @@ export const CandidateSignupPage = () => {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: 'var(--color-text-muted)',
+                    pointerEvents: 'none',
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: showPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -393,14 +430,14 @@ export const CandidateSignupPage = () => {
                 <input
                   id="candidate-confirm-pw"
                   name="confirm_password"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirm_password}
                   onChange={handleChange}
                   placeholder="Re-enter password"
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 10px 12px 36px',
+                    padding: '12px 34px 12px 36px',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border-default)',
                     fontSize: '0.875rem',
@@ -415,8 +452,31 @@ export const CandidateSignupPage = () => {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     color: 'var(--color-text-muted)',
+                    pointerEvents: 'none',
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: showConfirmPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
           </div>
@@ -455,6 +515,7 @@ export const CandidateSignupPage = () => {
           </span>
           <Link
             to="/candidate/login"
+            state={location.state}
             style={{
               color: 'var(--color-brand-ink)',
               fontWeight: 700,

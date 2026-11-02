@@ -1,34 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2, Lock, User } from 'lucide-react';
+import { Building2, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const RecruiterLoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
+  const cardRef = useRef(null);
   const [formData, setFormData] = useState({ username_or_email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    animateFadeInUp(cardRef, { y: 30, duration: 0.6 });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const res = await login(formData);
-    setLoading(false);
-
-    if (res.success) {
-      navigate('/recruiter/dashboard');
-    } else {
-      setError(res.error?.message || 'Invalid credentials. Please verify your username/email and password.');
+    try {
+      const res = await login(formData);
+      if (res.success) {
+        if (res.user?.role === 'CANDIDATE') {
+          await logout();
+          setError('This account is registered as a Candidate (Job Seeker). Please use the Candidate Login, or sign in with an Employer / Recruiter account (e.g. hr_tatamotors).');
+          return;
+        }
+        navigate('/recruiter/dashboard');
+      } else {
+        setError(res.error?.message || 'Invalid credentials. Please verify your username/email and password.');
+      }
+    } catch (err) {
+      setError(err?.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container" style={{ padding: 'var(--space-16) 0', maxWidth: '440px' }}>
-      <div className="card" style={{ padding: 'var(--space-8)' }}>
+      <div ref={cardRef} className="card" style={{ padding: 'var(--space-8)' }}>
+
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-brand-sage)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-3)', color: 'var(--color-brand-ink)' }}>
             <Building2 size={24} />
@@ -54,14 +71,39 @@ export const RecruiterLoginPage = () => {
 
           <div className="form-group">
             <label className="form-label">Password *</label>
-            <input
-              type="password"
-              required
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="form-input"
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="form-input"
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  color: showPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" variant="primary" size="lg" isLoading={loading} style={{ width: '100%', marginTop: 'var(--space-4)' }}>

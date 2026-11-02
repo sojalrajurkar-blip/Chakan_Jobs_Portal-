@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Calendar, User, CheckCircle2, XCircle, MessageCircle, Download, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { recruiterService } from '../services/api';
 import { Button, Badge, Spinner, AlertBanner, EmptyState } from '../components/common/UIComponents';
+import { animateStaggerCards } from '../utils/gsapAnimations';
 
 export const RecruiterApplicantsPage = () => {
   const { id } = useParams();
@@ -14,12 +15,20 @@ export const RecruiterApplicantsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const applicantsRef = useRef(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       navigate('/recruiter/login');
     }
   }, [authLoading, isAuthenticated, navigate]);
+
+  // GSAP animation on applicant list
+  useEffect(() => {
+    if (applicants.length > 0 && applicantsRef.current) {
+      animateStaggerCards('.applicant-card', applicantsRef);
+    }
+  }, [applicants]);
 
   const loadApplicants = () => {
     setLoading(true);
@@ -42,6 +51,7 @@ export const RecruiterApplicantsPage = () => {
       loadApplicants();
     }
   }, [id, isAuthenticated]);
+
 
   const handleStatusChange = async (applicantId, newStatus) => {
     setUpdatingId(applicantId);
@@ -88,9 +98,10 @@ export const RecruiterApplicantsPage = () => {
           icon={User}
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <div ref={applicantsRef} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
           {applicants.map((app) => (
-            <div key={app.id} className="card" style={{ padding: 'var(--space-6)' }}>
+            <div key={app.id} className="card applicant-card" style={{ padding: 'var(--space-6)' }}>
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
                 <div>
                   <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-1)' }}>{app.full_name}</h3>

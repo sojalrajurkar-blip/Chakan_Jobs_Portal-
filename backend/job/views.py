@@ -114,24 +114,39 @@ class PublicJobDetailView(generics.RetrieveAPIView):
 class CandidateApplyView(APIView):
     """
     POST /api/jobs/{id}/apply/
-    Public endpoint for candidates to apply to a specific active job post.
+    Endpoint for registered & authenticated candidates to apply to a specific active job post.
+    Requires Candidate Authentication (Bearer/Token).
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request, pk, *args, **kwargs):
+        # Employers cannot apply to job vacancies
+        if request.user.role == User.Role.RECRUITER and not request.user.is_staff:
+            return Response(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "RECRUITER_CANNOT_APPLY",
+                        "message": "Employers cannot apply for job vacancies. Please sign in with a candidate account.",
+                    },
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         job_post = get_object_or_404(JobPost, pk=pk, status=JobPost.Status.ACTIVE)
 
         serializer = CandidateApplicationSerializer(data=request.data)
         if serializer.is_valid():
             mobile_number = serializer.validated_data['mobile_number']
 
-            # Check if this mobile number already applied to this specific job recently (within 24 hours)
+            # Check if this candidate or mobile number already applied to this specific job recently (within 24 hours)
             recent_threshold = timezone.now() - timedelta(hours=24)
             duplicate_exists = Application.objects.filter(
                 job_post=job_post,
-                mobile_number=mobile_number,
                 submitted_at__gte=recent_threshold
+            ).filter(
+                Q(mobile_number=mobile_number) | Q(candidate=request.user)
             ).exists()
 
             if duplicate_exists:
@@ -146,13 +161,22 @@ class CandidateApplyView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            candidate_user = request.user if request.user.is_authenticated else None
-            if not candidate_user:
-                matching_candidate = User.objects.filter(mobile_number=mobile_number, role=User.Role.CANDIDATE).first()
-                if matching_candidate:
-                    candidate_user = matching_candidate
+            # Support 1-Click Apply using saved profile resume or upload new
+            resume_file = serializer.validated_data.get('resume_file')
+            use_saved_resume = str(request.data.get('use_saved_resume', 'false')).lower() in ('true', '1')
 
-            application = serializer.save(job_post=job_post, candidate=candidate_user)
+            if not resume_file and (use_saved_resume or 'resume_file' not in request.FILES):
+                if getattr(request.user, 'resume', None):
+                    resume_file = request.user.resume
+
+            application = serializer.save(job_post=job_post, candidate=request.user, resume_file=resume_file)
+
+            # Save uploaded resume to candidate's profile for future 1-click apply
+            uploaded_file = serializer.validated_data.get('resume_file')
+            save_to_profile = str(request.data.get('save_to_profile', 'true')).lower() in ('true', '1')
+            if uploaded_file and (save_to_profile or not getattr(request.user, 'resume', None)):
+                request.user.resume = application.resume_file
+                request.user.save(update_fields=['resume'])
 
             return Response(
                 {
@@ -161,6 +185,7 @@ class CandidateApplyView(APIView):
                     "application_id": application.id,
                     "job_title": job_post.title,
                     "company_name": job_post.company_name,
+                    "used_saved_resume": bool(not uploaded_file and resume_file),
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -464,7 +489,7 @@ class RecruiterDashboardSummaryView(APIView):
             "total_applications": total_applications,
             "pending_reviews": pending_reviews,
             "shortlisted_count": shortlisted_count,
-            "recent_applications": RecruiterApplicantSerializer(recent_applications, many=True).data,
+            "recent_applications": RecruiterApplicantSerializer(recent_applications, many=True, context={'request': request}).data,
         })
 
 

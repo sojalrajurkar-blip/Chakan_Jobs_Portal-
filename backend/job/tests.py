@@ -48,6 +48,20 @@ class JobCoreAPITests(TestCase):
         )
         self.token_unverified = Token.objects.create(user=self.unverified_recruiter)
 
+        # Create candidate user for authenticated job applications
+        self.candidate = User.objects.create_user(
+            username='candidate_santosh',
+            password='Password@123',
+            role=User.Role.CANDIDATE,
+            first_name='Santosh',
+            last_name='Shinde',
+            mobile_number='9811223344',
+            qualification='ITI Machinist',
+            current_address='Kuruli, Chakan',
+            is_verified=True
+        )
+        self.candidate_token = Token.objects.create(user=self.candidate)
+
         # Create sample job posts
         self.job_1 = JobPost.objects.create(
             recruiter=self.recruiter_1,
@@ -117,7 +131,34 @@ class JobCoreAPITests(TestCase):
         self.assertIn('shifts', response.data)
         self.assertIn('education_levels', response.data)
 
+    def test_candidate_apply_requires_authentication(self):
+        """Unauthenticated requests must be rejected with 401 Unauthorized."""
+        payload = {
+            'full_name': 'Santosh Shinde',
+            'age': 23,
+            'qualification': 'ITI Machinist',
+            'mobile_number': '9811223344',
+            'current_address': 'Kuruli, Chakan',
+        }
+        response = self.client.post(f'/api/jobs/{self.job_1.id}/apply/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_candidate_apply_blocked_for_recruiter(self):
+        """Employers cannot apply to job vacancies and should receive 403 Forbidden."""
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token_1.key}')
+        payload = {
+            'full_name': 'Recruiter Applying',
+            'age': 25,
+            'qualification': 'Degree',
+            'mobile_number': '9890011111',
+            'current_address': 'Chakan',
+        }
+        response = self.client.post(f'/api/jobs/{self.job_1.id}/apply/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['error']['code'], 'RECRUITER_CANNOT_APPLY')
+
     def test_candidate_apply_success(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         payload = {
             'full_name': 'Santosh Shinde',
             'age': 23,
@@ -132,6 +173,7 @@ class JobCoreAPITests(TestCase):
         self.assertEqual(self.job_1.applications.count(), 1)
 
     def test_candidate_apply_duplicate_rejection(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         payload = {
             'full_name': 'Santosh Shinde',
             'age': 23,
@@ -149,6 +191,7 @@ class JobCoreAPITests(TestCase):
         self.assertEqual(dup_resp.data['error']['code'], 'DUPLICATE_APPLICATION')
 
     def test_candidate_apply_validation_errors(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         payload = {
             'full_name': 'A',  # Too short
             'age': 16,  # Underage (< 18)
@@ -163,6 +206,7 @@ class JobCoreAPITests(TestCase):
         self.assertIn('mobile_number', response.data['error']['details'])
 
     def test_candidate_apply_with_valid_resume_upload(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         resume_file = SimpleUploadedFile(
             'rahul_patil_cv.pdf',
             b'%PDF-1.4 sample pdf content for resume',
@@ -198,6 +242,7 @@ class JobCoreAPITests(TestCase):
         self.assertIn('rahul_patil_cv', first_applicant['resume_url'])
 
     def test_candidate_apply_with_invalid_file_extension(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         bad_file = SimpleUploadedFile(
             'virus_script.exe',
             b'MZ binary content',
@@ -220,6 +265,7 @@ class JobCoreAPITests(TestCase):
         self.assertIn('resume_file', response.data['error']['details'])
 
     def test_candidate_apply_with_oversized_file(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.candidate_token.key}')
         # 6MB file (exceeds 5MB limit)
         oversized = SimpleUploadedFile(
             'huge_portfolio.pdf',
@@ -409,5 +455,52 @@ class JobCoreAPITests(TestCase):
         self.assertEqual(app_item['job_id'], self.job_1.id)
         self.assertEqual(app_item['job_title'], self.job_1.title)
         self.assertEqual(app_item['status'], Application.Status.SUBMITTED)
+
+    def test_candidate_one_click_apply_with_saved_resume(self):
+        saved_file = SimpleUploadedFile("profile_resume.pdf", b"%PDF-1.4 test resume content", content_type="application/pdf")
+        candidate = User.objects.create_user(
+            username='cand_oneclick',
+            password='Password@123',
+            role=User.Role.CANDIDATE,
+            mobile_number='9822998877',
+            first_name='Aniket',
+            last_name='Pawar',
+            qualification='ITI Fitter',
+            current_address='Phase 2, Chakan',
+            resume=saved_file,
+            is_verified=True
+        )
+        token = Token.objects.create(user=candidate)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        apply_resp = self.client.post(
+            f'/api/jobs/{self.job_1.id}/apply/',
+            {
+                'full_name': 'Aniket Pawar',
+                'age': 22,
+                'qualification': 'ITI Fitter',
+                'mobile_number': '9822998877',
+                'current_address': 'Phase 2, Chakan',
+                'use_saved_resume': 'true',
+            },
+            format='multipart'
+        )
+        self.assertEqual(apply_resp.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(apply_resp.data['success'])
+        self.assertTrue(apply_resp.data['used_saved_resume'])
+
+        app = Application.objects.get(id=apply_resp.data['application_id'])
+        self.assertTrue(bool(app.resume_file))
+        self.assertIn('profile_resume', app.resume_file.name)
+
+    def test_recruiter_company_logo_in_job_serializer(self):
+        logo_file = SimpleUploadedFile("tatamotors_logo.png", b"\x89PNG\r\n\x1a\nfakeimagebytes", content_type="image/png")
+        self.recruiter_1.company_logo = logo_file
+        self.recruiter_1.save()
+
+        resp = self.client.get(f'/api/jobs/{self.job_1.id}/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(resp.data['company_logo_url'])
+        self.assertIn('tatamotors_logo', resp.data['company_logo_url'])
 
 

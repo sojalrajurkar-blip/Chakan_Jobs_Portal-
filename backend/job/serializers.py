@@ -8,6 +8,7 @@ class JobPostPublicListSerializer(serializers.ModelSerializer):
     shift_display = serializers.CharField(source='get_shift_display', read_only=True)
     min_education_display = serializers.CharField(source='get_min_education_display', read_only=True)
     experience_required_display = serializers.CharField(source='get_experience_required_display', read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = JobPost
@@ -15,6 +16,7 @@ class JobPostPublicListSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'company_name',
+            'company_logo_url',
             'area',
             'village',
             'job_type',
@@ -33,6 +35,14 @@ class JobPostPublicListSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+    def get_company_logo_url(self, obj):
+        if obj.recruiter and obj.recruiter.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.recruiter.company_logo.url)
+            return obj.recruiter.company_logo.url
+        return None
+
 
 class JobPostDetailSerializer(serializers.ModelSerializer):
     job_type_display = serializers.CharField(source='get_job_type_display', read_only=True)
@@ -40,6 +50,7 @@ class JobPostDetailSerializer(serializers.ModelSerializer):
     min_education_display = serializers.CharField(source='get_min_education_display', read_only=True)
     experience_required_display = serializers.CharField(source='get_experience_required_display', read_only=True)
     gender_preference_display = serializers.CharField(source='get_gender_preference_display', read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
     related_jobs = serializers.SerializerMethodField()
     application_count = serializers.SerializerMethodField()
 
@@ -50,6 +61,7 @@ class JobPostDetailSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'company_name',
+            'company_logo_url',
             'company_address',
             'area',
             'village',
@@ -79,6 +91,14 @@ class JobPostDetailSerializer(serializers.ModelSerializer):
             'related_jobs',
             'application_count',
         ]
+
+    def get_company_logo_url(self, obj):
+        if obj.recruiter and obj.recruiter.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.recruiter.company_logo.url)
+            return obj.recruiter.company_logo.url
+        return None
 
     def get_related_jobs(self, obj):
         # Find active jobs with overlapping keywords or same area, excluding self
@@ -296,6 +316,7 @@ class CandidateApplicationDetailSerializer(serializers.ModelSerializer):
     max_salary = serializers.IntegerField(source='job_post.max_salary', read_only=True)
     job_type_display = serializers.CharField(source='job_post.get_job_type_display', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
     resume_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -305,6 +326,7 @@ class CandidateApplicationDetailSerializer(serializers.ModelSerializer):
             'job_id',
             'job_title',
             'company_name',
+            'company_logo_url',
             'area',
             'min_salary',
             'max_salary',
@@ -318,6 +340,14 @@ class CandidateApplicationDetailSerializer(serializers.ModelSerializer):
             'resume_url',
             'submitted_at',
         ]
+
+    def get_company_logo_url(self, obj):
+        if obj.job_post and obj.job_post.recruiter and obj.job_post.recruiter.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.job_post.recruiter.company_logo.url)
+            return obj.job_post.recruiter.company_logo.url
+        return None
 
     def get_resume_url(self, obj):
         if obj.resume_file:

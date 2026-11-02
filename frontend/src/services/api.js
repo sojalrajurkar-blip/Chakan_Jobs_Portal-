@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseUrl ? `${apiBaseUrl.replace(/\/+$/, '')}/api` : '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -40,16 +42,17 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-  register: (payload) => api.post('/auth/register/', payload),
+  register: (payload, config = {}) => api.post('/auth/register/', payload, config),
   login: (payload) => api.post('/auth/login/', payload),
   logout: () => api.post('/auth/logout/'),
   getMe: () => api.get('/auth/me/'),
-  updateMe: (payload) => api.patch('/auth/me/', payload),
+  updateMe: (payload, config = {}) => api.patch('/auth/me/', payload, config),
 };
 
 export const candidateService = {
-  register: (payload) => api.post('/auth/candidate/register/', payload),
+  register: (payload, config = {}) => api.post('/auth/candidate/register/', payload, config),
   getMyApplications: () => api.get('/candidate/applications/'),
+  updateProfile: (payload, config = {}) => api.patch('/auth/me/', payload, config),
 };
 
 export const jobService = {

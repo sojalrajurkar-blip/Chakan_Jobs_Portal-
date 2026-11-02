@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Chakan Jobs Admin Panel{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/chakan_admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div id="branding">
+  <div class="brand-badge">CJ</div>
+  <div>
+    <h1 id="site-name">
+      <a href="{% url 'admin:index' %}">
+        CHAKAN<span class="brand-title-gold">JOBS</span>
+      </a>
+    </h1>
+    <div class="brand-subtitle">MIDC INDUSTRIAL HIRING PORTAL — ADMIN CONSOLE</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block userlinks %}
+  <a href="http://localhost:5173/" target="_blank" rel="noopener noreferrer" style="border: 1px solid #EFB817; color: #EFB817;">
+    🌐 View Job Portal
+  </a>
+  {{ block.super }}
+{% endblock %}

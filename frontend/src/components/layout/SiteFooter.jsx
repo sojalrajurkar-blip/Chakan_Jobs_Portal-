@@ -91,18 +91,22 @@ export const SiteFooter = () => {
           {/* Col 4: Help & Contact */}
           <div>
             <h4 style={{ color: 'var(--color-text-inverse)', marginBottom: 'var(--space-4)', fontSize: '1rem' }}>
-              Portal Support
+              Chakan Support & Factory Helpdesk
             </h4>
             <p style={{ color: '#BBBBCF', fontSize: '0.875rem', marginBottom: 'var(--space-3)' }}>
-              Industrial recruitment platform serving Chakan, Nanekarwadi, Kuruli & Talegaon MIDC.
+              Free candidate assistance and direct recruitment infrastructure for factory employers.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', fontSize: '0.875rem', color: '#BBBBCF' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <MapPin size={16} color="var(--color-brand-gold)" />
-                <span>Chakan MIDC, Khed, Pune 410501</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)' }}>
+                <MapPin size={16} color="var(--color-brand-gold)" style={{ marginTop: '3px', flexShrink: 0 }} />
+                <span>Plot No. C-12, MIDC Phase 2, Chakan-Talegaon Road, Pune - 410501</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <Mail size={16} color="var(--color-brand-gold)" />
+                <Phone size={16} color="var(--color-brand-gold)" style={{ flexShrink: 0 }} />
+                <span>Phone: 02135-252100 (Mon - Sat, 9:00 AM - 6:00 PM)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <Mail size={16} color="var(--color-brand-gold)" style={{ flexShrink: 0 }} />
                 <span>support@chakanjobs.com</span>
               </div>
             </div>

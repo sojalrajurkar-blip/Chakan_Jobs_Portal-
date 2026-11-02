@@ -25,15 +25,23 @@ export function App() {
           <Route index element={<HomePage />} />
           <Route path="jobs" element={<JobSearchPage />} />
           <Route path="jobs/:id" element={<JobDetailPage />} />
-          <Route path="jobs/:id/apply" element={<CandidateApplyPage />} />
+          <Route
+            path="jobs/:id/apply"
+            element={
+              <ProtectedRoute allowedRoles={['CANDIDATE', 'ADMIN']} redirectTo="/candidate/login">
+                <CandidateApplyPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Candidate Authentication & Applications */}
           <Route path="candidate/login" element={<CandidateLoginPage />} />
           <Route path="candidate/signup" element={<CandidateSignupPage />} />
+          <Route path="candidate/register" element={<CandidateSignupPage />} />
           <Route
             path="candidate/applications"
             element={
-              <ProtectedRoute redirectTo="/candidate/login">
+              <ProtectedRoute allowedRoles={['CANDIDATE', 'ADMIN']} redirectTo="/candidate/login">
                 <CandidateApplicationsPage />
               </ProtectedRoute>
             }
@@ -47,7 +55,7 @@ export function App() {
           <Route
             path="recruiter/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']} redirectTo="/recruiter/login">
                 <RecruiterDashboardPage />
               </ProtectedRoute>
             }
@@ -55,7 +63,7 @@ export function App() {
           <Route
             path="recruiter/jobs/new"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']} redirectTo="/recruiter/login">
                 <RecruiterJobFormPage />
               </ProtectedRoute>
             }
@@ -63,7 +71,7 @@ export function App() {
           <Route
             path="recruiter/jobs/:id/edit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']} redirectTo="/recruiter/login">
                 <RecruiterJobFormPage />
               </ProtectedRoute>
             }
@@ -71,7 +79,7 @@ export function App() {
           <Route
             path="recruiter/jobs/:id/applicants"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['RECRUITER', 'ADMIN']} redirectTo="/recruiter/login">
                 <RecruiterApplicantsPage />
               </ProtectedRoute>
             }

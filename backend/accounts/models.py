@@ -40,6 +40,12 @@ class User(AbstractUser):
         blank=True,
         default=''
     )
+    company_logo = models.ImageField(
+        upload_to='company_logos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Official company logo image (PNG/JPG/SVG)"
+    )
     qualification = models.CharField(
         max_length=100,
         blank=True,
@@ -50,6 +56,12 @@ class User(AbstractUser):
         blank=True,
         default='',
         help_text="Candidate residence address in Chakan/Pune"
+    )
+    resume = models.FileField(
+        upload_to='candidate_resumes/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Stored candidate profile resume (PDF/DOC/DOCX)"
     )
     is_verified = models.BooleanField(
         default=False,

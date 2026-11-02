@@ -2,6 +2,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout as django_logout
 
@@ -20,6 +21,7 @@ class CandidateRegisterView(APIView):
     Auto-activates account and issues token.
     """
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request, *args, **kwargs):
         serializer = CandidateRegistrationSerializer(data=request.data)
@@ -31,7 +33,7 @@ class CandidateRegisterView(APIView):
                     "success": True,
                     "message": "Candidate account created successfully.",
                     "token": token.key,
-                    "user": UserProfileSerializer(user).data,
+                    "user": UserProfileSerializer(user, context={'request': request}).data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -54,6 +56,7 @@ class RegisterView(APIView):
     Registers a new recruiter account, validates fields, and issues an authentication token.
     """
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request, *args, **kwargs):
         serializer = UserRegistrationSerializer(data=request.data)
@@ -65,7 +68,7 @@ class RegisterView(APIView):
                     "success": True,
                     "message": "Account created successfully.",
                     "token": token.key,
-                    "user": UserProfileSerializer(user).data,
+                    "user": UserProfileSerializer(user, context={'request': request}).data,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -100,7 +103,7 @@ class LoginView(APIView):
                     "success": True,
                     "message": "Authentication successful.",
                     "token": token.key,
-                    "user": UserProfileSerializer(user).data,
+                    "user": UserProfileSerializer(user, context={'request': request}).data,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -153,6 +156,7 @@ class MeView(generics.RetrieveUpdateAPIView):
     Updates editable fields of the user's company and contact profile.
     """
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = UserProfileSerializer
 
     def get_object(self):
@@ -160,13 +164,13 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        serializer = self.get_serializer(instance, context={'request': request})
         return Response({"success": True, "user": serializer.data})
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', True)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(

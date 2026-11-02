@@ -36,45 +36,88 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (credentials) => {
-    const res = await authService.login(credentials);
-    if (res.data?.success) {
-      const newToken = res.data.token;
-      const newUser = res.data.user;
-      setToken(newToken);
-      setUser(newUser);
-      localStorage.setItem('chakan_job_auth_token', newToken);
-      localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
-      return { success: true };
+    try {
+      const res = await authService.login(credentials);
+      if (res.data?.success) {
+        const newToken = res.data.token;
+        const newUser = res.data.user;
+        setToken(newToken);
+        setUser(newUser);
+        localStorage.setItem('chakan_job_auth_token', newToken);
+        localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
+        return { success: true, user: newUser };
+      }
+      return { success: false, error: res.data?.error };
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.error?.message ||
+        err.response?.data?.detail ||
+        (typeof err.response?.data?.error === 'string' ? err.response?.data?.error : null) ||
+        'Invalid mobile number or password. Please verify your credentials.';
+      return {
+        success: false,
+        error: {
+          message: errorMsg,
+          details: err.response?.data?.error?.details,
+        },
+      };
     }
-    return { success: false, error: res.data?.error };
   };
 
   const register = async (payload) => {
-    const res = await authService.register(payload);
-    if (res.data?.success) {
-      const newToken = res.data.token;
-      const newUser = res.data.user;
-      setToken(newToken);
-      setUser(newUser);
-      localStorage.setItem('chakan_job_auth_token', newToken);
-      localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
-      return { success: true };
+    try {
+      const res = await authService.register(payload);
+      if (res.data?.success) {
+        const newToken = res.data.token;
+        const newUser = res.data.user;
+        setToken(newToken);
+        setUser(newUser);
+        localStorage.setItem('chakan_job_auth_token', newToken);
+        localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
+        return { success: true, user: newUser };
+      }
+      return { success: false, error: res.data?.error };
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.error?.message ||
+        err.response?.data?.detail ||
+        'Registration failed. Please check the entered details.';
+      return {
+        success: false,
+        error: {
+          message: errorMsg,
+          details: err.response?.data?.error?.details,
+        },
+      };
     }
-    return { success: false, error: res.data?.error };
   };
 
   const registerCandidate = async (payload) => {
-    const res = await candidateService.register(payload);
-    if (res.data?.success) {
-      const newToken = res.data.token;
-      const newUser = res.data.user;
-      setToken(newToken);
-      setUser(newUser);
-      localStorage.setItem('chakan_job_auth_token', newToken);
-      localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
-      return { success: true };
+    try {
+      const res = await candidateService.register(payload);
+      if (res.data?.success) {
+        const newToken = res.data.token;
+        const newUser = res.data.user;
+        setToken(newToken);
+        setUser(newUser);
+        localStorage.setItem('chakan_job_auth_token', newToken);
+        localStorage.setItem('chakan_job_user', JSON.stringify(newUser));
+        return { success: true, user: newUser };
+      }
+      return { success: false, error: res.data?.error };
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.error?.message ||
+        err.response?.data?.detail ||
+        'Candidate registration failed. Please check the entered details.';
+      return {
+        success: false,
+        error: {
+          message: errorMsg,
+          details: err.response?.data?.error?.details,
+        },
+      };
     }
-    return { success: false, error: res.data?.error };
   };
 
   const logout = async () => {

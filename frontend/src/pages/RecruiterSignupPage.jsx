@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2 } from 'lucide-react';
+import { Building2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const RecruiterSignupPage = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const cardRef = useRef(null);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -19,9 +21,15 @@ export const RecruiterSignupPage = () => {
     position: '',
     company_type: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState(null);
+
+  useEffect(() => {
+    animateFadeInUp(cardRef, { y: 30, duration: 0.6 });
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,7 +54,8 @@ export const RecruiterSignupPage = () => {
 
   return (
     <div className="container" style={{ padding: 'var(--space-12) 0', maxWidth: '640px' }}>
-      <div className="card" style={{ padding: 'var(--space-8)' }}>
+      <div ref={cardRef} className="card" style={{ padding: 'var(--space-8)' }}>
+
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-brand-sage)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-3)', color: 'var(--color-brand-ink)' }}>
             <Building2 size={24} />
@@ -89,28 +98,78 @@ export const RecruiterSignupPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
             <div className="form-group">
               <label className="form-label">Password *</label>
-              <input
-                type="password"
-                name="password"
-                required
-                placeholder="Min 6 characters"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-input"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  required
+                  placeholder="Min 6 characters"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="form-input"
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: showPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="form-group">
               <label className="form-label">Confirm Password *</label>
-              <input
-                type="password"
-                name="confirm_password"
-                required
-                placeholder="Re-enter password"
-                value={formData.confirm_password}
-                onChange={handleChange}
-                className="form-input"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirm_password"
+                  required
+                  placeholder="Re-enter password"
+                  value={formData.confirm_password}
+                  onChange={handleChange}
+                  className="form-input"
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: showConfirmPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
           </div>
 

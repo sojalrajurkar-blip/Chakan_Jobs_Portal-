@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const NotFoundPage = () => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    animateFadeInUp(containerRef, { y: 25, duration: 0.6 });
+  }, []);
+
   return (
-    <div className="container" style={{ textAlign: 'center', padding: 'var(--space-20) 0' }}>
+    <div ref={containerRef} className="container" style={{ textAlign: 'center', padding: 'var(--space-20) 0' }}>
       <div style={{ display: 'inline-flex', padding: 'var(--space-4)', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-brand-sage)', marginBottom: 'var(--space-4)' }}>
         <AlertCircle size={48} color="var(--color-brand-ink)" />
       </div>

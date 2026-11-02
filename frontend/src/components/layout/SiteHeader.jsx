@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Briefcase, Building2, User, LogOut, Menu, X, PlusCircle, Search } from 'lucide-react';
+import gsap from 'gsap';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/UIComponents';
 
@@ -9,6 +10,17 @@ export const SiteHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileDrawerRef = useRef(null);
+
+  useEffect(() => {
+    if (mobileMenuOpen && mobileDrawerRef.current) {
+      gsap.fromTo(
+        mobileDrawerRef.current,
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
+      );
+    }
+  }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -31,6 +43,48 @@ export const SiteHeader = () => {
         boxShadow: 'var(--shadow-subtle)',
       }}
     >
+      {/* Top Banner: Real MIDC Hiring Pulse & Direct Helpline */}
+      <div
+        style={{
+          backgroundColor: '#070524',
+          color: '#E0C75C',
+          fontSize: '0.75rem',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '5px 0',
+        }}
+      >
+        <div
+          className="container"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="pulse-dot" />
+            <span style={{ fontWeight: 600, letterSpacing: '0.02em', color: '#F0F4F1' }}>
+              DIRECT FACTORY HIRING • CHAKAN & TALEGAON MIDC • 140+ PLANTS INTERVIEWING TODAY • 100% FREE
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px',
+              color: '#B9C0C3',
+              fontSize: '0.75rem',
+            }}
+          >
+            <span>📞 Candidate Helpline: <strong style={{ color: '#FFFFFF' }}>02135-252100</strong></span>
+            <span style={{ color: '#EFB817', fontWeight: 600 }}>💬 WhatsApp Support: +91 98901 23456</span>
+          </div>
+        </div>
+      </div>
+
       <div
         className="container"
         style={{
@@ -234,6 +288,7 @@ export const SiteHeader = () => {
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div
+          ref={mobileDrawerRef}
           style={{
             backgroundColor: 'var(--color-surface-card)',
             borderTop: '1px solid var(--color-border-default)',

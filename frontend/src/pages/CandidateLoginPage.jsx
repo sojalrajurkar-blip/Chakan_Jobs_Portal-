@@ -1,35 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Phone, Lock, LogIn, UserCheck, ArrowRight } from 'lucide-react';
+import { Phone, Lock, LogIn, UserCheck, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, AlertBanner } from '../components/common/UIComponents';
+import { animateFadeInUp } from '../utils/gsapAnimations';
 
 export const CandidateLoginPage = () => {
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const cardRef = useRef(null);
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const from = location.state?.from?.pathname || '/candidate/applications';
+
+  useEffect(() => {
+    animateFadeInUp(cardRef, { y: 30, duration: 0.6 });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const res = await login({
-      username_or_email: identifier.trim(),
-      password,
-    });
+    try {
+      const res = await login({
+        username_or_email: identifier.trim(),
+        password,
+      });
 
-    if (res.success) {
-      navigate(from, { replace: true });
-    } else {
-      setError(res.error?.message || 'Invalid mobile number or password. Please verify your credentials.');
+      if (res.success) {
+        if (res.user?.role === 'RECRUITER') {
+          await logout();
+          setError('This account is registered as an Employer / Recruiter. Please sign in via Employer / HR Login to access your dashboard.');
+          return;
+        }
+        navigate(from, { replace: true });
+      } else {
+        setError(res.error?.message || 'Invalid mobile number or password. Please verify your credentials.');
+      }
+    } catch (err) {
+      setError(err?.message || 'Login failed. Please check your network connection and try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -46,6 +63,7 @@ export const CandidateLoginPage = () => {
       }}
     >
       <div
+        ref={cardRef}
         className="card"
         style={{
           width: '100%',
@@ -57,6 +75,7 @@ export const CandidateLoginPage = () => {
           border: '1px solid var(--color-border-default)',
         }}
       >
+
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
           <div
             style={{
@@ -113,7 +132,7 @@ export const CandidateLoginPage = () => {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              Mobile Number or Username <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
+              Mobile Number or Registered Name <span style={{ color: 'var(--color-accent-terracotta)' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -121,7 +140,7 @@ export const CandidateLoginPage = () => {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="e.g. 9876543210"
+                placeholder="e.g. 1234509876 or Tejas"
                 required
                 autoFocus
                 style={{
@@ -162,14 +181,14 @@ export const CandidateLoginPage = () => {
             <div style={{ position: 'relative' }}>
               <input
                 id="candidate-password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
                 style={{
                   width: '100%',
-                  padding: '12px 14px 12px 42px',
+                  padding: '12px 42px 12px 42px',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-default)',
                   fontSize: '0.9375rem',
@@ -184,8 +203,31 @@ export const CandidateLoginPage = () => {
                   top: '50%',
                   transform: 'translateY(-50%)',
                   color: 'var(--color-text-muted)',
+                  pointerEvents: 'none',
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  color: showPassword ? 'var(--color-brand-ink)' : 'var(--color-text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -223,6 +265,7 @@ export const CandidateLoginPage = () => {
           </span>
           <Link
             to="/candidate/signup"
+            state={location.state}
             style={{
               color: 'var(--color-brand-ink)',
               fontWeight: 700,
