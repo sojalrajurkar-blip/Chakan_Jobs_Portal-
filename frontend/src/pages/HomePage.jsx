@@ -15,8 +15,6 @@ import {
   AlertTriangle,
   Users,
   Wrench,
-  Cpu,
-  Layers,
   Factory,
   CheckCircle,
 } from 'lucide-react';
@@ -84,51 +82,6 @@ export const HomePage = () => {
     'Bridgestone MIDC',
     'Gabriel India',
     'Minda Corporation',
-  ];
-
-  const midcZones = [
-    {
-      name: 'Chakan MIDC Phase 1 & 2',
-      tagline: 'Auto OEMs, Tata/Bajaj Vendors & Heavy Engineering',
-      openings: '38+ Openings',
-      icon: <Factory size={22} color="#EFB817" />,
-      query: 'MIDC Phase 1',
-    },
-    {
-      name: 'Chakan Phase 3 & 4 (Kharabwadi)',
-      tagline: 'Stamping, Press Shops, Welding & Fabrication Units',
-      openings: '42+ Openings',
-      icon: <Layers size={22} color="#EFB817" />,
-      query: 'MIDC Phase 3',
-    },
-    {
-      name: 'Talegaon MIDC Corridor',
-      tagline: 'JCB, General Motors Cluster, Electronics & Logistics',
-      openings: '29+ Openings',
-      icon: <Building2 size={22} color="#EFB817" />,
-      query: 'Talegaon',
-    },
-    {
-      name: 'Nanekarwadi & Kuruli Industrial Area',
-      tagline: 'Precision Tool Rooms, CNC & VMC Machine Shops',
-      openings: '34+ Openings',
-      icon: <Cpu size={22} color="#EFB817" />,
-      query: 'Nanekarwadi',
-    },
-    {
-      name: 'Mahalunge & Chakan-Shikrapur Rd',
-      tagline: 'Component Assembly, Powder Coating & Packaging',
-      openings: '25+ Openings',
-      icon: <Wrench size={22} color="#EFB817" />,
-      query: 'Mahalunge',
-    },
-    {
-      name: 'Bhosari MIDC (Pune Gateway)',
-      tagline: 'MSME Fabrication, Lathe Work, Tooling & Die Units',
-      openings: '18+ Openings',
-      icon: <Users size={22} color="#EFB817" />,
-      query: 'Bhosari',
-    },
   ];
 
   const popularRoles = [
@@ -565,93 +518,7 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. Explore by MIDC Industrial Zone */}
-      <section style={{ padding: 'var(--space-12) 0' }}>
-        <div className="container">
-          <div style={{ marginBottom: 'var(--space-8)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <MapPin size={20} color="var(--color-brand-ink)" />
-              <h2 style={{ fontSize: '1.75rem', margin: 0 }}>Jobs by MIDC Industrial Zone</h2>
-            </div>
-            <p style={{ margin: 0 }}>
-              Explore active plant vacancies across major automotive and manufacturing clusters.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: 'var(--space-5)',
-            }}
-          >
-            {midcZones.map((zone) => (
-              <div
-                key={zone.name}
-                className="zone-card"
-                onClick={() => navigate(`/jobs?area=${encodeURIComponent(zone.query)}`)}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3)' }}>
-                    <div
-                      style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '10px',
-                        backgroundColor: 'var(--color-brand-ink)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {zone.icon}
-                    </div>
-                    <span
-                      style={{
-                        backgroundColor: 'var(--color-brand-sage-light)',
-                        color: 'var(--color-brand-ink)',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        padding: '4px 10px',
-                        borderRadius: 'var(--radius-pill)',
-                        border: '1px solid var(--color-border-default)',
-                      }}
-                    >
-                      {zone.openings}
-                    </span>
-                  </div>
-
-                  <h3 style={{ fontSize: '1.125rem', marginBottom: '4px', color: 'var(--color-brand-ink)' }}>
-                    {zone.name}
-                  </h3>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', margin: 0 }}>
-                    {zone.tagline}
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 'var(--space-4)',
-                    paddingTop: 'var(--space-3)',
-                    borderTop: '1px solid var(--color-border-default)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    color: 'var(--color-brand-ink)',
-                    fontSize: '0.8125rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  <span>View Openings in this Zone</span>
-                  <ArrowRight size={14} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Popular Job Categories in Chakan */}
+      {/* 4. Popular Job Categories in Chakan */}
       <section style={{ backgroundColor: '#F8FAFC', padding: 'var(--space-12) 0', borderTop: '1px solid var(--color-border-default)', borderBottom: '1px solid var(--color-border-default)' }}>
         <div className="container">
           <div style={{ marginBottom: 'var(--space-8)' }}>
